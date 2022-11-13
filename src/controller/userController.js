@@ -5,7 +5,7 @@ const { body, param, query, validationResult } = require('express-validator');
 // Create and Save a new User
 exports.createUser = async (req, res) => {    
     // Create a User
-    const {payload} = req.body;
+    const { firstName, lastName, email, phone_number, dob, gender, maritus, country, state, cit, password, confirm_password,  } = req.body;
     
     const t = await sequelize.transaction ();
 

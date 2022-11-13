@@ -2,16 +2,18 @@
 
 module.exports = {
   async up (queryInterface, Sequelize) {
-   await queryInterface.createTable("email", {
-    email_id: {
+   await queryInterface.createTable("user_type", {
+    user_type_id: {
       allowNull: false,
       primaryKey: true,
-      type: Sequelize.BIGINT,
-      defaultValue: Sequelize.BIGINT,
+      type: Sequelize.SMALLINT,
+      defaultValue: Sequelize.SMALLINT,
     },
-    email: {
-      type: Sequelize.STRING,
-      unique: true
+    code: {
+      type: Sequelize.STRING
+    },
+    description: {
+      type: Sequelize.STRING
     },
     created_by: {
       type: Sequelize.STRING
@@ -31,6 +33,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-   await queryInterface.dropTable("email");
+   await queryInterface.dropTable("user_type");
   }
 };

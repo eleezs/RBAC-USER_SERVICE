@@ -9,7 +9,8 @@ module.exports = (sequelize, DataTypes) => {
 			defaultValue: DataTypes.BIGINT,
 		},
 		email: {
-			type: DataTypes.STRING
+			type: DataTypes.STRING,
+			unique: true
 		},
 		created_by: {
 			type: DataTypes.STRING
