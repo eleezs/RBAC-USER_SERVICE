@@ -1,26 +1,35 @@
 'use strict';
 
 module.exports = (sequelize, DataTypes) => {
-    const User = sequelize.define("user", {
-        id: {
+    const Person = sequelize.define("person", {
+        person_id: {
             allowNull: false,
             primaryKey: true,
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
         },
-        firstName: {
+        marital_status_type_id: {
+            type: DataTypes.SMALLINT
+        },
+        first_name: {
             type: DataTypes.STRING
         },
-        lastName: {
+        middle_name: {
             type: DataTypes.STRING
         },
-        email: {
+        last_name: {
             type: DataTypes.STRING
         },
-        password: {
+        date_of_birth: {
+            type: DataTypes.DATE
+        },
+        gender: {
+            type: DataTypes.STRING
+        },
+        created_by: {
             type: DataTypes.STRING
         }
     });
     
-    return User;
+    return Person;
 };
