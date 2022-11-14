@@ -1,0 +1,30 @@
+openapi: '3.0.2'
+info:
+  title: RBAC CRUD
+  version: '1.0'
+servers:
+  - url: localhost://user-service/v1
+paths:
+  /:
+    get:
+      responses:
+        '200':
+          description: 'User Microservice v.1.0'
+  /create:
+    post:
+      requestBody:
+        description: 'To register new user'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+
+      responses:
+        '200':
+          description: User created
+ 
