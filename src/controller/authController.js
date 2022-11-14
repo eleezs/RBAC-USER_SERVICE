@@ -1,6 +1,5 @@
 const sequelize = require ('../config/database');
 const User = require("../models").user;
-const { body, param, query, validationResult } = require('express-validator');
 const dotenv = require('dotenv').config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");

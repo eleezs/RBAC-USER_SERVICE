@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
         person_id: {
             allowNull: false,
             primaryKey: true,
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
+            type: DataTypes.BIGINT,
+            defaultValue: DataTypes.BIGINT,
         },
         marital_status_type_id: {
             type: DataTypes.SMALLINT
@@ -25,6 +25,15 @@ module.exports = (sequelize, DataTypes) => {
         },
         gender: {
             type: DataTypes.STRING
+        },
+        country_id: {
+            type: DataTypes.BIGINT
+        },
+        country_state_id: {
+            type: DataTypes.BIGINT
+        },
+        city_id: {
+            type: DataTypes.BIGINT
         },
         created_by: {
             type: DataTypes.STRING

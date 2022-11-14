@@ -27,6 +27,15 @@ module.exports = {
 			gender: {
 				type: Sequelize.STRING
 			},
+			country_id: {
+				type: Sequelize.BIGINT
+			},
+			country_state_id: {
+				type: Sequelize.BIGINT
+			},
+			city_id: {
+				type: Sequelize.BIGINT
+			},
 			created_by: {
 				type: Sequelize.STRING
 			},

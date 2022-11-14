@@ -1,6 +1,17 @@
 'use strict';
+const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
+    class accessUser extends Model {
+
+        static associations(models) {
+            //define association here
+            accessUser.belongsTo(models.person, {
+                foreignKey: person_id
+            })
+        }
+    };
+
     const accessUser = sequelize.define("access_user", {
         access_user_id: {
             allowNull: false,
