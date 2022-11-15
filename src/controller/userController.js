@@ -1,28 +1,28 @@
 const sequelize = require ('../config/database');
 const { Models, Person, Email, phoneNumber, personPhone, accessUser, userRecoveryQuestion, userLogin } = require("../models");
-const { response, getUserById, hashAPassword } = require('../helper/utitlyHelper')
-const queryString = require('query-string')
+const { response, getUserById, hashAPassword } = require('../helper/utitlyHelper');
 require('dotenv');
 
 // Create and Save a new User
 exports.createUser = async (req, res) => {    
     // Create a User
-    const { firstName, lastName, email, phoneNumber, phoneCodeId } = req.body;
+    const { firstName, lastName, email, phone, phoneCodeId } = req.body;
     
     const t = await sequelize.transaction ();
 
     // Save User in the database
     try {
+        const userEmail = await Email.create({ email, created_by: `${firstName} ${lastName}` }, { transaction: t });
+
         const person = await Person.create({
             first_name: firstName,
-            last_name: lastName
+            last_name: lastName,
+            email_id: userEmail.email_id
         }, { transaction: t });
-
-        const userEmail = await Email.create({ email, created_by: `${firstName} ${lastName}` }, { transaction: t });
 
         const userNumber = await phoneNumber.create({ 
             phone_code_id: phoneCodeId,
-            phone_number: phoneNumber,
+            phone_number: phone,
             created_by: `${firstName} ${lastName}`
         }, { transaction: t })
 
@@ -32,12 +32,14 @@ exports.createUser = async (req, res) => {
             is_primary: true,
             created_by: `${firstName} ${lastName}`
         }, { transaction: t })
+
+        await userEmail,update({ person_id: person.person_id })
         
         await t.commit();
         person.dataValues.email = userEmail.dataValues.email;
         person.dataValues.phoneNumber = userNumber.dataValues.phone_number;
 
-        return response(res, true, 201, 'User created successfully', Person);
+        return response(res, true, 201, 'User created successfully', person);
        
     } catch (e) {
         await t.rollback();
@@ -215,19 +217,3 @@ exports.deleteUser = async (req, res) => {
         res.status(500).send({message: "Could not delete User with id=" + id, e});
     }
 };
-
-const stringifiedParams = queryString.stringify({
-    client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: 'https://www.example.com/authenticate/google',
-    // https://accounts.google.com/o/oauth2/v2/auth
-    scope: [
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/userinfo.profile',
-    ].join(' '), // space seperated string
-    response_type: 'code',
-    access_type: 'offline',
-    prompt: 'consent',
-})
-
-const googleLoginUrl = `https://accounts.google.com/o/oauth2/v2/auth?${stringifiedParams}`;
-// `${rootUrl}?${querystring.stringify(options)}`;

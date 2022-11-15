@@ -83,7 +83,7 @@ exports.create_user = [
     .withMessage('This field must be a string')
     .notEmpty()
     .withMessage('This field can not be empty'),
-  body("phoneNumber")
+  body("phone")
     .exists()
     .withMessage('This field is required')
     .isString()
@@ -98,7 +98,7 @@ exports.create_user = [
     .notEmpty()
     .withMessage('This field can not be empty'),
   body()
-    .custom(body => checkAllowedFields(body, ['firstName', 'lastName', 'email', 'phoneNumber', 'phoneCodeId']))
+    .custom(body => checkAllowedFields(body, ['firstName', 'lastName', 'email', 'phone', 'phoneCodeId']))
 ];
 
 exports.update_user_bio = [
@@ -254,6 +254,7 @@ exports.secure_user_account = [
     .notEmpty()
     .withMessage('This field can not be empty'),
   body()
+    .custom(validateSecureAccountParameter)
     .custom(body => checkAllowedFields(body, ['userId', 'password', 'recoveryQuestionId1', 'recoveryQuestionId2', 'recoveryQuestionId3', 'recoveryQuestionId4', 'recoveryAnswer1', 'recoveryAnswer2', 'recoveryAnswer3', 'recoveryAnswer4']))
 ]
 

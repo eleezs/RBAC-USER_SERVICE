@@ -1,78 +1,105 @@
-const sequelize = require ('../config/database');
-const User = require("../models").user;
-const dotenv = require('dotenv').config();
+const sequelize = require('../config/database');
+const { Models, Person, Email, phoneNumber, personPhone, accessUser, userRecoveryQuestion, userLogin } = require("../models");
+require('dotenv')
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { response } = require('../helper/utitlyHelper');
 
-exports.login = async (req, res) => {  
-    const {payload} = req.body;
-    const {email, password} = payload;
-    
-    const t = await sequelize.transaction ();
+require('dotenv');
 
-    try {
+exports.login = async (req, res) => {
+	const { payload } = req.body;
+	const { email, password } = payload;
 
-        let user = await User.findOne({where:{email}},{transaction:t})
+	const t = await sequelize.transaction();
 
-        if(!user){
-            return res.status(404).send({ message: "User Not found." });
-        }
+	try {
 
-        let passwordIsValid = bcrypt.compare(
-            user.password,
-            password
-        );
+	const user = await Email.findOne({ 
+			where: { email },
+			include: [Person] 
+		
+		},{ transaction: t })
 
-        if(!passwordIsValid){
-            return res.status(401).send({
-                accessToken: null,
-                message: "Invalid Password!"
-            });
-        };
+		if (!user) {
+			return response(res, true, 404, 'User Not found.')
+		}
 
-        let token = jwt.sign(
-            {
-                id: user.id,
-                firstName: user.firstName
-            },
-            process.env.SECRET,
-            {expiresIn: 864000}
-        );
+		let passwordIsValid = bcrypt.compare(
+			user.password,
+			password
+		);
 
-        await t.commit();
-        res.status(200).json({
-            userId: user.id,
-            accessToken: token
-        });
-    } catch(e) {
-        await t.rollback();
-        console.log(e);
-        res.status(500).json({message: 'Error occurred', e});
-    }
+		if (!passwordIsValid) {
+			return res.status(401).send({
+				accessToken: null,
+				message: "Invalid Password!"
+			});
+		};
+
+		let token = jwt.sign(
+			{
+				id: user.id,
+				firstName: user.firstName
+			},
+			process.env.JWT_SECRET,
+			{ expiresIn: 864000 }
+		);
+
+		await t.commit();
+		res.status(200).json({
+			userId: user.id,
+			accessToken: token
+		});
+	} catch (e) {
+		await t.rollback();
+		console.log(e);
+		res.status(500).json({ message: 'Error occurred', e });
+	}
 }
 
-exports.logout = async (req, res) => {    
-    // Create a User
-    
-    const {accessToken} = req.accessToken;
-    
-    const t = await sequelize.transaction ();
+exports.logout = async (req, res) => {
+	// Create a User
 
-    // Save User in the database
-    try {
+	const { accessToken } = req.accessToken;
 
-        let logout = await accessToken.deleteToken(token);
+	const t = await sequelize.transaction();
 
-        if(!logout){
-            return res.status(404).send({ message: "Unable to Logout User." });
-        }
-        await t.commit();
-        res.status(200).json({
-            message: "Logged out"
-        });
-    } catch(e) {
-        await t.rollback();
-        console.log(e);
-        res.status(500).json({message: 'Error occurred', e});
-    }
+	// Save User in the database
+	try {
+
+		let logout = await accessToken.deleteToken(token);
+
+		if (!logout) {
+			return res.status(404).send({ message: "Unable to Logout User." });
+		}
+		await t.commit();
+		res.status(200).json({
+			message: "Logged out"
+		});
+	} catch (e) {
+		await t.rollback();
+		console.log(e);
+		res.status(500).json({ message: 'Error occurred', e });
+	}
+}
+
+exports.googleCallbackSuccess = async (req, res) => {
+	console.log(req, 'from callback')
+	if(!req.user) {
+		res.redirect('/auth/callback/failure');
+	}
+	let token = jwt.sign(
+		{
+			id: req.user.id,
+			firstName: req.user.firstName
+		},
+		process.env.SECRET,
+		{ expiresIn: 864000 }
+	);
+	return response( res, true, 200, `Welcome ${req.user.email}`, token);
+}
+
+exports.googleCallbackFailure = async (req, res) => {
+	return response( res, false, 400, 'Could not sign you in at this moment. Try again!');
 }

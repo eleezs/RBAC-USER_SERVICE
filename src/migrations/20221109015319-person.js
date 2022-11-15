@@ -9,6 +9,12 @@ module.exports = {
 				type: Sequelize.BIGINT,
 				defaultValue: Sequelize.BIGINT,
 			},
+			email_id: {
+				type: Sequelize.BIGINT,
+			},
+			access_user_id: {
+				type: Sequelize.BIGINT,
+			},
 			marital_status_type_id: {
 				type: Sequelize.SMALLINT
 			},

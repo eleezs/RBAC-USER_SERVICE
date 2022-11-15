@@ -1,6 +1,16 @@
-const { DataTypes } = require("sequelize");
+const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
+	class email extends Model {
+
+        static associations(models) {
+            //define association here
+            email.belongsTo(models.person, {
+                foreignKey: person_id
+            })
+        }
+    };
+
 	const Email = sequelize.define("email", {
 		email_id: {
 			allowNull: false,
@@ -11,6 +21,9 @@ module.exports = (sequelize, DataTypes) => {
 		email: {
 			type: DataTypes.STRING,
 			unique: true
+		},
+		person_id: {
+			type: DataTypes.BIGINT,
 		},
 		created_by: {
 			type: DataTypes.STRING

@@ -1,12 +1,34 @@
 'use strict';
 
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
+    class person extends Model {
+
+        static associations(models) {
+            //define association here
+            person.hasMany(models.person, {
+                foreignKey: email_id
+            }),
+
+            person.hasOne(models.access_user, {
+
+            })
+        }
+    };
+
     const Person = sequelize.define("person", {
         person_id: {
             allowNull: false,
             primaryKey: true,
             type: DataTypes.BIGINT,
             defaultValue: DataTypes.BIGINT,
+        },
+        email_id: {
+            type: DataTypes.BIGINT,
+        },
+        access_user_id: {
+            type: DataTypes.BIGINT,
         },
         marital_status_type_id: {
             type: DataTypes.SMALLINT

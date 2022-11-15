@@ -12,6 +12,6 @@ exports.getAllActiveRecoveryQuestion = async(req, res) => {
     } catch (e) {
         await t.rollback();
         console.log(e);
-    return response(res, false, 500, 'Error Occured!')
+        return response(res, false, 500, 'Error Occured!')
     }
 }

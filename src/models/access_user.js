@@ -16,8 +16,8 @@ module.exports = (sequelize, DataTypes) => {
         access_user_id: {
             allowNull: false,
             primaryKey: true,
-            type: DataTypes.UUID,
-            defaultValue: DataTypes.UUIDV4,
+            type: DataTypes.BIGINT,
+            defaultValue: DataTypes.BIGINT,
         },
         person_id: {
             type: DataTypes.BIGINT

@@ -13,6 +13,9 @@ module.exports = {
       type: Sequelize.STRING,
       unique: true
     },
+    person_id:{
+      type: Sequelize.BIGINT,
+    },
     created_by: {
       type: Sequelize.STRING
     },
