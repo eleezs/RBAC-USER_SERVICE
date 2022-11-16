@@ -15,7 +15,7 @@ exports.login = async (req, res) => {
 
 	try {
 
-	const user = await Email.findOne({ 
+	const user = await Models.email.findOne({ 
 			where: { email },
 			include: [Person] 
 		

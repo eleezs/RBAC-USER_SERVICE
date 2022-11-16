@@ -1,12 +1,12 @@
 const { response } = require("../helper/utilityHelper");
-const { Models, sequelize, RecoveryQuestion, roleType, userRole } = require("../models");
+const Models = require("../models");
 
 
 exports.getAllActiveRecoveryQuestion = async (req, res) => {
 	const t = sequelize.transaction();
 
 	try {
-		questions = await RecoveryQuestion.findAll({})
+		questions = await Models.recoveryquestion.findAll({})
 
 		return response(res, true, 200, 'Active recovery questions fetched successfuly', questions)
 	} catch (e) {
@@ -20,8 +20,8 @@ exports.createRole = async (req, res) => {
 	const t = sequelize.transaction();
 	const { role, description } = req.body 
 	try {
-		await roleType.create({
-			role_type: role,
+		await Models.roletype.create({
+			roletype: role,
 			description,
 			created_by: `${req.user.id}`
 		}, { transaction: t })
@@ -40,12 +40,12 @@ exports.assignRole = async(req, res) => {
 	const { accessUserId, roleId, isActive, effectiveDate, endDate } = req.body;
 
  	try {
-		await userRole.create({
-			access_user_id: accessUserId,
-			role_id: roleId,
-			is_active: isActive,
-			effective_date: effectiveDate,
-			end_date: endDate
+		await Models.userrole.create({
+			accessuserid: accessUserId,
+			roleid: roleId,
+			isactive: isActive,
+			effectivedate: effectiveDate,
+			enddate: endDate
 		}, { transaction: t })
 
 		await t.commit();

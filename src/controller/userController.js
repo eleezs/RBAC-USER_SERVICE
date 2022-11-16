@@ -1,5 +1,5 @@
 const sequelize = require ('../config/database');
-const { Models, Person, Email, phoneNumber, personPhone, accessUser, userRecoveryQuestion, userLogin } = require("../models");
+const Models = require("../models");
 const { response, getUserById, hashAPassword } = require('../helper/utilityHelper');
 require('dotenv');
 
@@ -12,32 +12,31 @@ exports.createUser = async (req, res) => {
 
     // Save User in the database
     try {
-        const userEmail = await Email.create({ email, created_by: `${firstName} ${lastName}` }, { transaction: t });
+        const userEmail = await Models.email.create({ email, createdby: `${firstName} ${lastName}` }, { transaction: t });
 
-        const person = await Person.create({
-            first_name: firstName,
-            last_name: lastName,
-            email_id: userEmail.email_id
+        const person = await Models.person.create({
+            firstname: firstName,
+            lastname: lastName
         }, { transaction: t });
 
-        const userNumber = await phoneNumber.create({ 
-            phone_code_id: phoneCodeId,
-            phone_number: phone,
+        const userNumber = await Models.phonenumber.create({ 
+            phonecodeid: phoneCodeId,
+            phonenumber: phone,
+            createdby: `${firstName} ${lastName}`
+        }, { transaction: t })
+
+        await Models.personphone.create({
+            personid: person.personid,
+            phonenumberid: userNumber.phonenumberid,
+            isprimary: true,
             created_by: `${firstName} ${lastName}`
         }, { transaction: t })
 
-        await personPhone.create({
-            person_id: person.person_id,
-            phone_number_id: userNumber.phone_number_id,
-            is_primary: true,
-            created_by: `${firstName} ${lastName}`
-        }, { transaction: t })
-
-        await userEmail,update({ person_id: person.person_id })
+        await userEmail,update({ person_id: person.personid })
         
         await t.commit();
         person.dataValues.email = userEmail.dataValues.email;
-        person.dataValues.phoneNumber = userNumber.dataValues.phone_number;
+        person.dataValues.phoneNumber = userNumber.dataValues.phonenumber;
 
         return response(res, true, 201, 'User created successfully', person);
        
@@ -50,20 +49,17 @@ exports.createUser = async (req, res) => {
 
 // fill user bio
 exports.updateUserBio = async (req, res) => {
-    const { userId, dob, gender, maritalStatusId, countryId, stateId, cityId } = req.body;
+    const { userId, dob, gender, maritalStatusId } = req.body;
 
     const t = await sequelize.transaction ();
 
     try {
         const person = await response.getUserById(userId);
         await person.update({
-            marital_status_type_id: maritalStatusId,
+            maritalstatustypeid: maritalStatusId,
             gender,
-            date_of_birth: dob,
-            country_id: countryId,
-            country_state_id: stateId,
-            city_id: cityId,
-            updated_by: `${person.first_name} ${person.last_name}`
+            dateofbirth: dob,
+            updated_by: `${person.firstname} ${person.lastname}`
         }, { transaction: t })
 
         await t.commit()
@@ -83,9 +79,9 @@ exports.secureUserAccount = async (req, res) => {
 
     try {
         const { salt, hashedPassword } = await hashAPassword(password) 
-        const user = await accessUser.findOne({ 
-            where: { person_id: userId },
-            include: [Person]
+        const user = await Models.accessuser.findOne({ 
+            where: { personid: userId },
+            include: [person]
         })
         
         if(!user) {
@@ -109,19 +105,19 @@ exports.secureUserAccount = async (req, res) => {
         })
         
         for (let i = 0; i < temp_question.length; i++) {
-            await userRecoveryQuestion.create({
-              access_user_id: user.access_user_id,
-              recovery_question_id: temp_question[i],
+            await Models.userrecoveryquestion.create({
+              accessuserid: user.access_user_id,
+              recoveryquestionid: temp_question[i],
               answer: temp_answer[i],
-              created_by: `${user.Person.first_name} ${user.Person.last_name}`
+              created_by: `${user.Person.firstname} ${user.Person.lastname}`
             }, { transaction: t })
         }
 
-        await userLogin.create({ 
-            access_user_id: user.access_user.id,
-            password_salt: salt,
-            password_hash: hashedPassword,
-            created_by: `${user.Person.first_name} ${user.Person.last_name}`
+        await Models.userlogin.create({ 
+            accessuserid: user.accessuser.id,
+            passwordsalt: salt,
+            passwordhash: hashedPassword,
+            createdby: `${user.Person.firstname} ${user.Person.lastname}`
         })
 
         await t.commit();
@@ -137,18 +133,18 @@ exports.secureUserAccount = async (req, res) => {
 
 //create user Access
 exports.createUserAccess = async(req, res) => {
-    const { userId, userTypeId } = req.body;
+    const { userId, userTypeId, username } = req.body;
 
     const t = await sequelize.transaction ();
 
     try {
         const user = await getUserById(userId)
         const admin = await getUserById(req.user.id)
-        const userAccess = await accessUser.create({
-            person_id: userId,
-            user_type_id: userTypeId,
-            username: generateUsername(username = user.first_name + user.last_name),
-            created_by: `${admin.first_name} ${admin.last_name}`
+        const userAccess = await Models.accessuser.create({
+            personid: userId,
+            usertypeid: userTypeId,
+            username,
+            created_by: `${admin.firstname} ${admin.lastname}`
         }, { transaction: t })
 
         return response(res, true, 201, 'User access created', userAccess)
@@ -163,7 +159,7 @@ exports.createUserAccess = async(req, res) => {
 exports.getAllUsers = async (req, res) => {
     const t = await sequelize.transaction ();
     try {
-        let data = await Person.findAll({transaction: t});
+        let data = await Models.person.findAll({transaction: t});
 
         await t.commit();
         return response(res, true, 200, 'Users retrieved successfully')
@@ -201,13 +197,13 @@ exports.deleteUser = async (req, res) => {
     const t = await sequelize.transaction ();
 
     try {
-        let data = await Person.destroy({ where: { person_id: id } }, { transaction: t } );
+        let data = await Models.person.destroy({ where: { personid: id } }, { transaction: t } );
 
         if(!data){
             return response(res, false, 404, "User with the specified ID does not exists");
         }
 
-        await accessUser.destroy({ where: { person_id: id } }, { transaction: t })
+        await Models.accessuser.destroy({ where: { personid: id } }, { transaction: t })
 
         await t.commit();
         return response(res, true, 200, 'user data deleted successfully')
