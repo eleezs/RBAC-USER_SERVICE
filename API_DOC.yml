@@ -1,4 +1,4 @@
-openapi: '3.0.2'
+openapi: '2.0.0'
 info:
   title: RBAC CRUD
   version: '1.0'
@@ -12,19 +12,28 @@ paths:
           description: 'User Microservice v.1.0'
   /create:
     post:
-      requestBody:
-        description: 'To register new user'
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                firstName:
-                  type: string
-                lastName:
-                  type: string
+      summary: 'To register new user'
+      consumes:
+          - application/json
+      parameters:
+        - in: body
+          name: User
+          description: 'To register new user'
+          schema:
+            type: object
+            required:
+              - userName
+            properties:
+              userName:
+                type: string
+              firstName:
+                type: string
+              lastName:
+                type: string
 
       responses:
         '200':
           description: User created
  
+
+    

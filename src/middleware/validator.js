@@ -1,4 +1,4 @@
-import { response } from '../helper/utitlyHelper';
+import { response } from '../helper/utilityHelper';
 
 const { body, param, query, validationResult } = require('express-validator');
 
@@ -118,7 +118,7 @@ exports.update_user_bio = [
     .notEmpty()
     .withMessage('This field can not be empty')
     .custom(isValidDate)
-    .withMessage("Start date format should be: YYYY-MM-DD"),
+    .withMessage("This field format should be: YYYY-MM-DD"),
   body("gender")
     .exists()
     .withMessage('This field is required')
@@ -258,7 +258,7 @@ exports.secure_user_account = [
     .custom(body => checkAllowedFields(body, ['userId', 'password', 'recoveryQuestionId1', 'recoveryQuestionId2', 'recoveryQuestionId3', 'recoveryQuestionId4', 'recoveryAnswer1', 'recoveryAnswer2', 'recoveryAnswer3', 'recoveryAnswer4']))
 ]
 
-exports.validIdParam = [
+exports.valid_id_param = [
   params("id")
     .exists()
     .withMessage('This is field is required')
@@ -269,4 +269,67 @@ exports.validIdParam = [
     .custom(isPositiveNumber),
   params()
     .custom(params => checkAllowedFields(params, ['id']))
+]
+
+exports.create_role = [
+  body("accessUserId")
+    .exists()
+    .withMessage('This field is required')
+    .isInt()
+    .withMessage('This field msut be an integer')
+    .notEmpty()
+    .withMessage('This field can be empty'),
+  body("roleId")
+    .exists()
+    .withMessage('This field is required')
+    .isInt()
+    .withMessage('This field msut be an integer')
+    .notEmpty()
+    .withMessage('This field can be empty'),
+  body("isActive")
+    .exists()
+    .withMessage('This field is required')
+    .isIn([true, false])
+    .withMessage('This field msut be a boolean')
+    .notEmpty()
+    .withMessage('This field can be empty'),
+  body("effectiveDate")
+    .exists()
+    .withMessage('This field is required')
+    .isString()
+    .withMessage('Start date should be a string')
+    .notEmpty()
+    .withMessage('This field can not be empty')
+    .custom(isValidDate)
+    .withMessage("This field format should be: YYYY-MM-DD"),
+  body("endDate")
+    .exists()
+    .withMessage('This field is required')
+    .isString()
+    .withMessage('Start date should be a string')
+    .notEmpty()
+    .withMessage('This field can not be empty')
+    .custom(isValidDate)
+    .withMessage("This field format should be: YYYY-MM-DD"),
+  body()
+    .custom(body => checkAllowedFields(body, ['accessUserId', 'roleId', 'isActive', 'effectiveDate', 'endDate']))
+]
+
+exports.assign_role = [
+  body("role")
+    .exists()
+    .withMessage('This field is required')
+    .isString()
+    .withMessage('This field msut be a string')
+    .notEmpty()
+    .withMessage('This field can be empty'),
+  body("description")
+    .exists()
+    .withMessage('This field is required')
+    .isInt()
+    .withMessage('This field msut be a string')
+    .notEmpty()
+    .withMessage('This field can be empty'),
+  body()
+    .custom(body => checkAllowedFields(body, ['role', 'description']))
 ]

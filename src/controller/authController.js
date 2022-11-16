@@ -3,7 +3,7 @@ const { Models, Person, Email, phoneNumber, personPhone, accessUser, userRecover
 require('dotenv')
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const { response } = require('../helper/utitlyHelper');
+const { response } = require('../helper/utilityHelper');
 
 require('dotenv');
 
@@ -97,7 +97,7 @@ exports.googleCallbackSuccess = async (req, res) => {
 		process.env.SECRET,
 		{ expiresIn: 864000 }
 	);
-	return response( res, true, 200, `Welcome ${req.user.email}`, token);
+	return response( res, true, 200, `Welcome ${req.user.email}`, token); //redirect to bio data page
 }
 
 exports.googleCallbackFailure = async (req, res) => {

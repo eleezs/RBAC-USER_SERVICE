@@ -1,6 +1,6 @@
 const sequelize = require ('../config/database');
 const { Models, Person, Email, phoneNumber, personPhone, accessUser, userRecoveryQuestion, userLogin } = require("../models");
-const { response, getUserById, hashAPassword } = require('../helper/utitlyHelper');
+const { response, getUserById, hashAPassword } = require('../helper/utilityHelper');
 require('dotenv');
 
 // Create and Save a new User
