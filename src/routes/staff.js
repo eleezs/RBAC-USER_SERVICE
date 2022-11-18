@@ -1,15 +1,14 @@
 const express = require('express');
-const { createRole, assignRole, createGroupAccess, deactiveOrActiveGroupAccess, addMembersToGroup } = require('../controller/staff');
-const { createUserAccess, getAllUsers, getUserById, deleteUser } = require('../controller/userController');
+const { createRole, assignRole, createGroupAccess, deactiveOrActiveGroupAccess, addMembersToGroup, updateUserAccess } = require('../controller/staff');
+const { getAllUsers, getUserById, deleteUser } = require('../controller/userController');
 const { verifyToken } = require('../middleware/authenticate');
 
 const { validate, valid_id_param, create_role, assign_role, admin_update_user_access, deactive_or_active_group_access, add_members_to_group } = require('../middleware/validator');
-jwtAuth
 const { verifyUserRole } = require('../middleware/verifyUserRole');
 const staffRouter = express.Router();
 
 // update a User access
-staffRouter.put('/update/user-access', verifyUserRole(), validate(admin_update_user_access),  createUserAccess);
+staffRouter.put('/update/user-access', verifyUserRole(), validate(admin_update_user_access),  updateUserAccess);
 
 // Retrieve all Users
 staffRouter.get('/users/all', verifyUserRole(), getAllUsers);

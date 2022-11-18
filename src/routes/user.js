@@ -1,5 +1,5 @@
 const express = require('express');
-const { createUser, updateUserBio, secureUserAccount, getCountry, getState, getCity, updateUserAddress } = require('../controller/userController');
+const { createUser, updateUserBio, secureUserAccount, getCountry, getState, getCity, updateUserAddress, updateUserAccess } = require('../controller/userController');
 const { verifyToken } = require('../middleware/authenticate')
 const { validate, create_user, update_user_bio, secure_user_account, update_user_access, valid_id_param, country, update_user_address } = require('../middleware/validator');
 const userRouter = express.Router();

@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
 class groupmember extends Sequelize.Model {
 	static associate(models) {
 		groupmember.belongsTo(models.accessgroup, {
-			foreignKey: accessuserid
+			foreignKey: 'accessuserid'
 		})
 	}
   static init(sequelize, DataTypes) {

@@ -5,8 +5,8 @@ module.exports = (sequelize, DataTypes) => {
 
 class authorizationtype extends Sequelize.Model {
 	static associate(models) {
-		authorizationtype.hasMany(models.resourcesautorization, {
-			foreignKey: authorizationtypeid
+		authorizationtype.hasMany(models.resourceauthorization, {
+			foreignKey: 'authorizationtypeid'
 		})
 	}
 

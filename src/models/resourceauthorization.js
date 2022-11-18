@@ -6,10 +6,10 @@ module.exports = (sequelize, DataTypes) => {
 class resourceauthorization extends Sequelize.Model {
 	static associate(models){
 		resourceauthorization.belongsTo(models.resource, {
-			foreignKey: resourceid
+			foreignKey: 'resourceid'
 		}),
 		resourceauthorization.belongsTo(models.authorizationtype, {
-			foreignKey: authorizationtypeid
+			foreignKey: 'authorizationtypeid'
 		})
 	}
 

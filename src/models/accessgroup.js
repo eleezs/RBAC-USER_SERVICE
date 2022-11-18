@@ -4,9 +4,9 @@ module.exports = (sequelize, DataTypes) => {
 }
 
 class accessgroup extends Sequelize.Model {
-	static associate (model) {
+	static associate (models) {
 		accessgroup.hasMany(models.groupmember, {
-			foreignKey: accessgroupid
+			foreignKey: 'accessgroupid'
 		})
 	}
   static init(sequelize, DataTypes) {
