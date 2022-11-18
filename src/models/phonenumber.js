@@ -4,11 +4,17 @@ module.exports = (sequelize, DataTypes) => {
 }
 
 class phonenumber extends Sequelize.Model {
-  static init(sequelize, DataTypes) {
+	static associate(models) {
+		phonenumber.belongsTo(models.phonecode, {
+			foreignKey: 'phonecodeid'
+		})
+	}
+	static init(sequelize, DataTypes) {
   return super.init({
     phonenumberid: {
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     phonecodeid: {

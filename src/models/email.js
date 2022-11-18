@@ -15,6 +15,7 @@ class email extends Sequelize.Model {
     emailid: {
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     email: {

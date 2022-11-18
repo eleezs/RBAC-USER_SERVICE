@@ -9,7 +9,8 @@ class personphone extends Sequelize.Model {
     personphoneid: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+			autoIncrement: true
     },
     personid: {
       type: DataTypes.BIGINT,

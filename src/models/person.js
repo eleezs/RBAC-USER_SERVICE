@@ -24,7 +24,8 @@ class person extends Sequelize.Model {
 			personid: {
 				type: DataTypes.BIGINT,
 				allowNull: false,
-				primaryKey: true
+				primaryKey: true,
+				autoIncrement: true,
 			},
 			maritalstatustypeid: {
 				type: DataTypes.SMALLINT,

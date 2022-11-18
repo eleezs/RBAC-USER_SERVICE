@@ -43,16 +43,20 @@ exports.checkDuplicateEmail = async (email) => {
 }
 
 exports.generateUsername = async(username) => {
-  let result;
+	console.log('username', username)
   const temp_username = username
   const quickGenerate = (temp_username) => {
     value = temp_username.trim()
     const number = Math.floor(1000 + Math.random() * 9000)
-    username = value.substring(0, 4) + number.slice();
-    return result = username + number
+		console.log('number', number)
+    username = value.substring(0, 4) + number;
+		console.log('username', username)
+    let new_result = username + number;
+		return new_result
   }
-
-  const onlyUsername = await Models.accessuer.findOne({
+	let result = quickGenerate(temp_username); 
+	console.log('result', result);
+  const onlyUsername = await Models.accessuser.findOne({
     where: { username: result }
   })
 

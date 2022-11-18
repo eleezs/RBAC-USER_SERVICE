@@ -1,7 +1,6 @@
 const sequelize = require('../models');
 const Models = require("../models");
 const { response, getUserById, hashAPassword, checkDuplicateEmail, generateUsername } = require('../helper/utilityHelper');
-const personaddress = require('../models/personaddress');
 require('dotenv');
 
 // Create and Save a new User
@@ -9,11 +8,11 @@ exports.createUser = async (req, res) => {
 	// Create a User
 	const { firstName, lastName, email, phone, phoneCodeId } = req.body;
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	// Save User in the database
 	try {
-		checkDuplicateEmail(email)
+		await checkDuplicateEmail(email)
 		const userEmail = await Models.email.create({ email, createdby: `${firstName} ${lastName}` }, { transaction: t });
 		const username = await generateUsername(firstName + lastName)
 		const person = await Models.person.create({
@@ -61,7 +60,7 @@ exports.createUser = async (req, res) => {
 	} catch (e) {
 		await t.rollback();
 		console.log(e);
-		return response(res, false, 500, 'Error occurred');
+		return response(res, false, 500, 'Something went wrong while processimg this request');
 	}
 }
 
