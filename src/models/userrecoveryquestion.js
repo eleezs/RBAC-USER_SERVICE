@@ -4,6 +4,11 @@ module.exports = (sequelize, DataTypes) => {
 }
 
 class userrecoveryquestion extends Sequelize.Model {
+	static associate(models) {
+		userrecoveryquestion.hasMany(models.recoveryquestion, {
+			foreignKey: 'recoveryquestionid'
+		})
+	}
   static init(sequelize, DataTypes) {
   return super.init({
     userrecoveryquestionid: {

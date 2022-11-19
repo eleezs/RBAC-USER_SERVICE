@@ -1,6 +1,7 @@
 const { response } =  require('../helper/utilityHelper');
-
+const Models = require('../models')
 const { body, param, query, validationResult } = require('express-validator');
+const { checkDuplicateEmail, checkDuplicatenumber, checkAllowedFields, isPositiveNumber, isValidDate, isValidPassword, validateGetCity, validateGetState, validateGetCountry, validateGetPhonecode } = require('../helper/validationHelper');
 
 exports.validate = (values = []) => {
     return async (req, res, next) => {
@@ -21,53 +22,117 @@ exports.validate = (values = []) => {
     };
 };
 
-const checkAllowedFields = (payload, fields) => {
-  payload = Array.isArray(payload) ? payload : [payload];
+// const checkAllowedFields = (payload, fields) => {
+//   payload = Array.isArray(payload) ? payload : [payload];
 
-  payload.forEach((item) => {
-    const allowed = Object.keys(item).every(field => fields.includes(field));
-    fields = typeof fields === 'string' ? fields : fields.join(', ');
+//   payload.forEach((item) => {
+//     const allowed = Object.keys(item).every(field => fields.includes(field));
+//     fields = typeof fields === 'string' ? fields : fields.join(', ');
 
-    if (!allowed) {
-      throw new Error(`Wrong fields passed. Allowed fields: ${fields}`);
-    }
-  });
+//     if (!allowed) {
+//       throw new Error(`Wrong fields passed. Allowed fields: ${fields}`);
+//     }
+//   });
 
-  return true;
-};
+//   return true;
+// };
 
-const isPositiveNumber = (value) => {
-  const math_sign = Math.sign(value)
-  if (math_sign !== 1 && math_sign !== 0) {
-    throw new Error("Value must be a positive number");
-  }
+// const isPositiveNumber = (value) => {
+//   const math_sign = Math.sign(value)
+//   if (math_sign !== 1 && math_sign !== 0) {
+//     throw new Error("Value must be a positive number");
+//   }
 
-  return true;
-}
+//   return true;
+// }
 
-const isValidDate = (value) => {
-  if (!value) return true;
-  if (!value.match(/^\d{4}-\d{2}-\d{2}$/g)) return false;
-  return new Date(value);
-}
+// const isValidDate = (value) => {
+//   if (!value) return true;
+//   if (!value.match(/^\d{4}-\d{2}-\d{2}$/g)) return false;
+//   return new Date(value);
+// }
 
-const isValidPassword = (value) => {
-  let regEx = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$/g
-  if (value.match(regEx)) {
-    return true;
-  }
-  return false;
-}
+// const isValidPassword = (value) => {
+//   let regEx = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).+$/g
+//   if (value.match(regEx)) {
+//     return true;
+//   }
+//   return false;
+// }
 
-const validateSecureAccountParameter = (body) => {
-  const { recoveryQuestionId1, recoveryQuestionId2, recoveryQuestionId3, recoveryQuestionId4 } = body
+// const checkDuplicateEmail = async (email) => {
+// 	const existingEmail = await Models.email.findOne({
+// 		where: {
+// 			email
+// 		}
+// 	})
 
-  if(!recoveryQuestionId1 && !recoveryQuestionId2 && !recoveryQuestionId3 && !recoveryQuestionId4) {
-    throw new Error('select a security question')
-  }
+// 	if (existingEmail) {
+// 		throw new Error("This is email is already in use")
+// 	}
 
-  return true
-}
+// 	return true;
+// }
+
+// const checkDuplicatenumber = async (phone) => {
+// 	const existingNumber = await Models.phonenumber.findOne({
+// 		where: {
+// 			phonenumber: phone
+// 		}
+// 	})
+
+// 	if (existingNumber) {
+// 		throw new Error("This is phone number is already in use")
+// 	}
+
+// 	return true;
+// }
+
+// const validateSecureAccountParameter = (body) => {
+//   const { recoveryQuestionId1, recoveryQuestionId2, recoveryQuestionId3, recoveryQuestionId4 } = body
+
+//   if(!recoveryQuestionId1 && !recoveryQuestionId2 && !recoveryQuestionId3 && !recoveryQuestionId4) {
+//     throw new Error('select a security question')
+//   }
+
+//   return true
+// }
+
+// const validateGetCity = (body) => {
+// 	const { id, cityId } = body
+
+// 	if (id && cityId) {
+// 		throw new Error('Passs one parameter per time')
+// 	}
+// 	return true;
+// }
+
+// const validateGetState = (body) => {
+// 	const { id, countryId } = body
+
+// 	if (id && countryId) {
+// 		throw new Error('Passs one parameter per time')
+// 	}
+// 	return true;
+// }
+
+// const validateGetCountry = (body) => {
+// 	const { id, country, code } = body
+
+// 	if (id && country || code && id || country && code) {
+// 		throw new Error('Passs one parameter per time')
+// 	}
+// 	return true;
+// }
+
+// const validateGetPhonecode = (body) => {
+// 	const { id, countryCode, countryId } = body
+
+// 	if (id && countryId || countryCode && id || countryId && countryCode) {
+// 		throw new Error('Passs one parameter per time')
+// 	}
+// 	return true;
+// }
 
 exports.create_user = [
   body("firstName")
@@ -90,14 +155,16 @@ exports.create_user = [
     .isString()
     .withMessage('This field must be a string')
     .notEmpty()
-    .withMessage('This field can not be empty'),
+    .withMessage('This field can not be empty')
+		.custom(checkDuplicateEmail),
   body("phone")
     .exists()
     .withMessage('This field is required')
     .isString()
     .withMessage('This field must be a string')
     .notEmpty()
-    .withMessage('This field can not be empty'),
+    .withMessage('This field can not be empty')
+		.custom(checkDuplicatenumber),
   body("phoneCodeId")
     .exists()
     .withMessage('This field is required')
@@ -111,55 +178,41 @@ exports.create_user = [
 ];
 
 exports.update_user_bio = [
-  body("userId")
+  param("id")
     .exists()
-    .withMessage('This field is required')
+    .withMessage('Id is required')
     .isInt()
-    .withMessage('This is field is an integer')
+    .withMessage('Id field is an integer')
     .notEmpty()
-    .withMessage('This field can not be empty')
+    .withMessage('Id can not be empty')
     .custom(isPositiveNumber),
   body("dob")
     .exists()
-    .withMessage('This field is required')
+    .withMessage('DOB is required')
     .isString()
     .withMessage('Start date should be a string')
     .notEmpty()
-    .withMessage('This field can not be empty')
+    .withMessage('DOB can not be empty')
+		.isDate()
+		.withMessage('Invalid date')
     .custom(isValidDate)
-    .withMessage("This field format should be: YYYY-MM-DD"),
+    .withMessage("DOB format should be: YYYY-MM-DD"),
   body("gender")
     .exists()
-    .withMessage('This field is required')
+    .withMessage('Gender is required')
     .isString()
-    .withMessage('This is field is an string')
+    .withMessage('Gender is an string')
     .isIn(['male', 'female', 'other'])
-    .withMessage('This field value should either be male, female, other')
+    .withMessage('Gender value should either be male, female, or other')
     .notEmpty()
-    .withMessage('This field can not be empty'),
+    .withMessage('Gender can not be empty'),
   body("maritalStatusId")
     .exists()
-    .withMessage('This is field is required')
+    .withMessage('Marital status id is required')
     .isInt()
-    .withMessage('This is field is an integer')
+    .withMessage('Marital status id is an integer')
     .notEmpty()
-    .withMessage('This field can not be empty')
-    .custom(isPositiveNumber),
-  body("country")
-    .exists()
-    .withMessage('Country is required')
-    .isInt()
-    .withMessage('Country is an integer')
-    .notEmpty()
-    .withMessage('Country can not be empty')
-    .custom(isPositiveNumber),
-  body("state")
-    .exists()
-    .withMessage('State is required')
-    .isInt()
-    .withMessage('State is an integer')
-    .notEmpty()
-    .withMessage('State can not be empty')
+    .withMessage('Marital status id can not be empty')
     .custom(isPositiveNumber),
   body("city")
     .exists()
@@ -170,7 +223,9 @@ exports.update_user_bio = [
     .withMessage('City can not be empty')
     .custom(isPositiveNumber),
   body()
-    .custom(body => checkAllowedFields(body, ['userId', 'dob', 'gender', 'maritalStatusId', 'countryId', 'stateId', 'cityId'] ))
+    .custom(body => checkAllowedFields(body, ['dob', 'gender', 'maritalStatusId', 'city'] )),
+	param()
+		.custom(param => checkAllowedFields(param, ['id']))
 ]
 
 exports.admin_update_user_access = [
@@ -221,63 +276,70 @@ exports.secure_user_account = [
     .isLength({ min: 8 })
     .withMessage("Password should not be less than 8 character")
     .custom(isValidPassword)
-    .withMessage('Password must contain at least one uppercase letter and lowercase letter')
+    .withMessage('Password must contain at least one uppercase and lowercase letter, number and special character')
     .notEmpty()
     .withMessage('This field can not be empty'),
   body("recoveryQuestionId1")
-    .optional({ nullable: true })
+    .exists()
+		.withMessage("Recovery Question Id_1 is required")
     .isInt()
-    .withMessage('This is field is an integer')
+    .withMessage('Recovery Question Id_1 is an integer')
     .notEmpty()
-    .withMessage('This field can not be empty')
+    .withMessage('Recovery Question Id_1 can not be empty')
     .custom(isPositiveNumber),
   body("recoveryQuestionId2")
-    .optional({ nullable: true })
+		.exists()
+		.withMessage("Recovery Question Id_2 is required")
     .isInt()
-    .withMessage('This is field is an integer')
+    .withMessage('Recovery Question Id_2 is an integer')
     .notEmpty()
-    .withMessage('This field can not be empty')
+    .withMessage('Recovery Question Id_2 can not be empty')
     .custom(isPositiveNumber),
   body("recoveryQuestionId3")
-    .optional({ nullable: true })
+		.exists()
+		.withMessage("Recovery Question Id_3 is required")
     .isInt()
-    .withMessage('This is field is an integer')
+    .withMessage('Recovery Question Id_3 is an integer')
     .notEmpty()
-    .withMessage('This field can not be empty')
+    .withMessage('Recovery Question Id_3 can not be empty')
     .custom(isPositiveNumber),
   body("recoveryQuestionId4")
-    .optional({ nullable: true })
+    .exists()
+		.withMessage("Recovery Question Id_4 is required")
     .isInt()
-    .withMessage('This is field is an integer')
+    .withMessage('Recovery Question Id_4 is an integer')
     .notEmpty()
-    .withMessage('This field can not be empty')
+    .withMessage('Recovery Question Id_4 can not be empty')
     .custom(isPositiveNumber),
   body("recoveryAnswer1")
-    .optional({ nullable: true })
+    .exists()
+		.withMessage("Recovery answer_1 is required")
     .isString()
-    .withMessage('This is field is an string')
+    .withMessage('Recovery answer_1 is an string')
     .notEmpty()
-    .withMessage('This field can not be empty'),
+    .withMessage('Recovery answer_1 can not be empty'),
   body("recoveryAnswer2")
-    .optional({ nullable: true })
+    .exists()
+		.withMessage("Recovery answer_2 is required")
     .isString()
-    .withMessage('This is field is an string')
+    .withMessage('Recovery answer_2 is an string')
     .notEmpty()
-    .withMessage('This field can not be empty'),
+    .withMessage('Recovery answer_2 can not be empty'),
   body("recoveryAnswer3")
-    .optional({ nullable: true })
+    .exists()
+		.withMessage("Recovery answer_3 is required")
     .isString()
-    .withMessage('This is field is an string')
+    .withMessage('Recovery answer_3 is an string')
     .notEmpty()
-    .withMessage('This field can not be empty'),
+    .withMessage('Recovery answer_3 can not be empty'),
   body("recoveryAnswer4")
-    .optional({ nullable: true })
+		.exists()
+		.withMessage("Recovery answer_4 is required")	
     .isString()
-    .withMessage('This is field is an string')
+    .withMessage('Recovery answer_4 is an string')
     .notEmpty()
-    .withMessage('This field can not be empty'),
+    .withMessage('Recovery answer_4 can not be empty'),
   body()
-    .custom(validateSecureAccountParameter)
     .custom(body => checkAllowedFields(body, ['userId', 'password', 'recoveryQuestionId1', 'recoveryQuestionId2', 'recoveryQuestionId3', 'recoveryQuestionId4', 'recoveryAnswer1', 'recoveryAnswer2', 'recoveryAnswer3', 'recoveryAnswer4']))
 ]
 
@@ -291,19 +353,110 @@ exports.valid_id_param = [
     .withMessage('Id can not be empty')
     .custom(isPositiveNumber),
   param()
-    .custom(params => checkAllowedFields(params, ['id']))
+    .custom(param => checkAllowedFields(param, ['id']))
 ]
 
-exports.country = [
+exports.valid_id_body = [
+  body("id")
+		.exists()
+		.withMessage('Id is required')
+    .isInt()
+    .withMessage('Id must be an integer')
+    .notEmpty()
+    .withMessage('Id can not be empty')
+    .custom(isPositiveNumber),
+  body()
+    .custom(body => checkAllowedFields(body, ['id']))
+]
+
+exports.get_city = [
+  body("id")
+		.optional()
+    .isInt()
+    .withMessage('Id must be an integer')
+    .notEmpty()
+    .withMessage('Id can not be empty')
+    .custom(isPositiveNumber),
+	body("cityId")
+		.optional()
+    .isInt()
+    .withMessage('city Id must be an integer')
+    .notEmpty()
+    .withMessage('city Id can not be empty')
+    .custom(isPositiveNumber),
+  body()
+		.custom(validateGetCity)
+    .custom(body => checkAllowedFields(body, ['id', 'cityId']))
+]
+
+exports.get_state = [
+  body("id")
+		.optional()
+    .isInt()
+    .withMessage('Id must be an integer')
+    .notEmpty()
+    .withMessage('Id can not be empty')
+    .custom(isPositiveNumber),
+	body("countryId")
+		.optional()
+    .isInt()
+    .withMessage('Country Id must be an integer')
+    .notEmpty()
+    .withMessage('Country Id can not be empty')
+    .custom(isPositiveNumber),
+  body()
+		.custom(validateGetState)
+    .custom(body => checkAllowedFields(body, ['id', 'countryId']))
+]
+
+exports.get_country = [
+	body("id")
+		.optional()
+		.isInt()
+		.withMessage('Id must be an integer')
+		.notEmpty()
+		.withMessage('Id can not be empty')
+		.custom(isPositiveNumber),
   body("country")
-    .exists()
-    .withMessage('Country is required')
+    .optional()
     .isString()
     .withMessage('Country must be an string')
     .notEmpty()
     .withMessage('Country can not be empty'),
+	body("code")
+    .optional()
+    .isString()
+    .withMessage('Code must be an string')
+    .notEmpty()
+    .withMessage('Code can not be empty'),
   body()
-    .custom(body => checkAllowedFields(body, ['country']))
+		.custom(validateGetCountry)
+    .custom(body => checkAllowedFields(body, ['id', 'code', 'country']))
+]
+
+exports.get_Phone_Code = [
+body("id")
+	.optional()
+	.isInt()
+	.withMessage('Id must be an integer')
+	.notEmpty()
+	.withMessage('Id can not be empty')
+	.custom(isPositiveNumber),
+body("countryId")
+	.optional()
+	.isInt()
+	.withMessage('Country Id must be an Integer')
+	.notEmpty()
+	.withMessage('Country Id can not be empty'),
+body("countryCode")
+	.optional()
+	.isString()
+	.withMessage('Country code must be an string')
+	.notEmpty()
+	.withMessage('Country code can not be empty'),
+body()
+.custom(validateGetPhonecode)
+.custom(body => checkAllowedFields(body, ['id', 'countryCode', 'countryId']))
 ]
 
 exports.create_role = [

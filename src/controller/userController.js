@@ -1,58 +1,59 @@
-const sequelize = require('../models');
 const Models = require("../models");
 const { response, getUserById, hashAPassword, checkDuplicateEmail, generateUsername } = require('../helper/utilityHelper');
+const { Sequelize } = require('../models');
 require('dotenv');
+
+const { Op } = Sequelize
 
 // Create and Save a new User
 exports.createUser = async (req, res) => {
-	// Create a User
-	const { firstName, lastName, email, phone, phoneCodeId } = req.body;
+
+	const { first_name, last_name, email, phone, phone_code_Id } = req.body;
 
 	const t = await Models.sequelize.transaction();
 
-	// Save User in the database
 	try {
 		await checkDuplicateEmail(email)
-		const userEmail = await Models.email.create({ email, createdby: `${firstName} ${lastName}` }, { transaction: t });
-		console.log('userEmail', userEmail)
-		const username = await generateUsername(firstName + lastName)
+		const user_email = await Models.email.create({ email, createdby: `${first_name} ${last_name}` }, { transaction: t });
+		console.log('user_email', user_email)
+		const username = await generateUsername(first_name + last_name)
 		const person = await Models.person.create({
-			firstname: firstName,
-			lastname: lastName
+			firstName: first_name,
+			lastNname: last_name
 		}, { transaction: t });
 
 		const userNumber = await Models.phonenumber.create({
-			phonecodeid: phoneCodeId,
+			phonecodeid: phone_code_Id,
 			phonenumber: phone,
-			createdby: `${firstName} ${lastName}`
+			createdby: `${first_name} ${last_name}`
 		}, { transaction: t })
-		// await t.commit();
+
 		await Promise.all([
 			Models.personphone.create({
 				personid: person.personid,
 				phonenumberid: userNumber.phonenumberid,
 				isprimary: true,
-				createdby: `${firstName} ${lastName}`
+				createdby: `${first_name} ${last_name}`
 			}, { transaction: t }),
 
-			userEmail.update({ person_id: person.personid }),
+			user_email.update({ person_id: person.personid }, { transaction: t }),
 
 			Models.personemail.create({
 				personid: person.personid,
-				emailid: userEmail.emailid,
+				emailid: user_email.emailid,
 				isprimary: true,
-				createdby: `${firstName} ${lastName}`
-			}),
+				createdby: `${first_name} ${last_name}`
+			}, { transaction: t }),
 
 			Models.accessuser.create({
 				personid: person.personid,
 				username,
-				createdby: `${firstName} ${lastName}`
-			})
+				createdby: `${first_name} ${last_name}`
+			}, { transaction: t })
 		])
 
 		await t.commit();
-		person.dataValues.email = userEmail.dataValues.email;
+		person.dataValues.email = user_email.dataValues.email;
 		person.dataValues.phoneNumber = userNumber.dataValues.phonenumber;
 		person.dataValues.username = username
 
@@ -61,18 +62,24 @@ exports.createUser = async (req, res) => {
 	} catch (e) {
 		await t.rollback();
 		console.log(e);
-		return response(res, false, 500, 'Something went wrong while processimg this request');
+		return response(res, false, 500, 'Something went wrong while processing this request');
 	}
 }
 
 // fill user bio
 exports.updateUserBio = async (req, res) => {
-	const { userId, dob, gender, maritalStatusId, city } = req.body;
+	const { dob, gender, maritalStatusId, city } = req.body;
+	const { id } = req.params;
 
 	const t = await Models.sequelize.transaction();
 
 	try {
-		const person = await getUserById(userId);
+		const person = await getUserById(id);
+
+		if (!person) {
+			return response(res, false, 400, `No user with this Id: ${id}`);
+		}
+
 		await person.update({
 			maritalstatustypeid: maritalStatusId,
 			gender,
@@ -80,8 +87,18 @@ exports.updateUserBio = async (req, res) => {
 			updatedby: `${person.firstname} ${person.lastname}`
 		}, { transaction: t })
 
+		const place = await Models.city.findOne({
+			where: { cityid: city }
+		}, { transaction: t })
+
+		if (!place) {
+			return response(res, false, 400, 'No city with such Id');
+		}
+
 		const myCity = await Models.address.create({
+			addresstypeid: 1,
 			cityid: city,
+			addressline1: ' ',
 			createdby: `${person.firstname} ${person.lastname}`
 		}, { transaction: t })
 
@@ -94,10 +111,10 @@ exports.updateUserBio = async (req, res) => {
 
 		await t.commit()
 		return response(res, true, 201, 'updated')
-	} catch (err) {
+	} catch (e) {
 		await t.rollback();
 		console.log(e);
-		return response(res, false, 500, 'Error occurred');
+		return response(res, false, 500, 'Something went wrong while processing this request');
 	}
 }
 
@@ -112,11 +129,12 @@ exports.secureUserAccount = async (req, res) => {
 		const user = await Models.accessuser.findOne({
 			where: { personid: userId },
 			include: [person]
-		})
+		}, { transaction: t })
 
 		if (!user) {
 			return response(res, true, 404, 'User not found')
 		}
+		console.log(user)
 		const question = [recoveryQuestionId1, recoveryQuestionId2, recoveryQuestionId3, recoveryQuestionId4]
 		const answer = [recoveryAnswer1, recoveryAnswer2, recoveryAnswer3, recoveryAnswer4]
 
@@ -243,15 +261,23 @@ exports.deleteUser = async (req, res) => {
 
 // get country
 exports.getCountry = async (req, res) => {
-	const { country } = req.body
+	const { id, country, code } = req.body
+	let where;
+	if (id) {
+		where = { countryid: id }
+	} else if (country) {
+		where = { country : { [Op.iLike]: `%${country}%` }}
+	} else if (code) {
+		where = { code : { [Op.iLike]: `%${code}%` }}
+	} else {
+		where = {}
+	}
 
 	const t = await Models.sequelize.transaction();
 
 	try {
 		const place = await Models.country.findAll({
-			where: {
-				country: { [Op.iLike]: `%${country}%` }
-			}
+			where
 		}, { transaction: t })
 
 		await t.commit()
@@ -259,21 +285,27 @@ exports.getCountry = async (req, res) => {
 	} catch (e) {
 		await t.rollback();
 		console.log(e);
-		return response(res, false, 500, `Error retrieving User with id: ${id}`);
+		return response(res, false, 500, 'Something went wrong while processing this request');
 	}
 }
 
 // get state
 exports.getState = async (req, res) => {
-	const { id } = req.params
+	const { id, countryId } = req.body
+	let where;
+	if (id) {
+		where = { countrystateid: id }
+	} else if (countryId) {
+		where = { countryid : countryId }
+	} else {
+		where = {}
+	}
 
 	const t = await Models.sequelize.transaction();
 
 	try {
 		const place = await Models.countrystate.findAll({
-			where: {
-				countryid: id
-			}
+			where
 		}, { transaction: t })
 
 		await t.commit()
@@ -281,21 +313,27 @@ exports.getState = async (req, res) => {
 	} catch (e) {
 		await t.rollback();
 		console.log(e);
-		return response(res, false, 500, `Error retrieving User with id: ${id}`);
+		return response(res, false, 500, 'Something went wrong while processing this request');
 	}
 }
 
 // get city
 exports.getCity = async (req, res) => {
-	const { id } = req.params
+	const { id, cityId } = req.body
+	let where;
+	if (id) {
+		where = { countrystateid: id }
+	} else if (cityId) {
+		where = { cityid : cityId }
+	} else {
+		where = {}
+	}
 
 	const t = await Models.sequelize.transaction();
 
 	try {
-		const place = await Models.countrystate.findAll({
-			where: {
-				countrystateid: id
-			}
+		const place = await Models.city.findAll({
+			where
 		}, { transaction: t })
 
 		await t.commit()
@@ -303,7 +341,7 @@ exports.getCity = async (req, res) => {
 	} catch (e) {
 		await t.rollback();
 		console.log(e);
-		return response(res, false, 500, `Error retrieving User with id: ${id}`);
+		return response(res, false, 500, 'Something went wrong while processing this request');
 	}
 }
 
@@ -352,27 +390,50 @@ exports.updateUserAddress = async (req, res) => {
 	}
 }
 
-// get city
+// get phone code
 exports.getPhonecode = async (req, res) => {
-	const { id } = req.params
+	const { id, countryId, countryCode } = req.body
+	let where;
+
+	if(id){
+		where = { phonecodeid: id }
+	} else if (countryId) {
+		where = { countryid: countryId}
+	} else if (countryCode) {
+		where = { countrycode : { [Op.iLike]: `%${countryCode}%` }}
+	} else {
+		where = {}
+	}
 
 	const t = await Models.sequelize.transaction();
 
 	try {
-		const countryCode = await Models.phonecode.findOne({
-			where: {
-				countryid: id
-			}
+		const phoneCode = await Models.phonecode.findAll({
+			where
 		}, { transaction: t })
 
-		if (countryCode) {
-			return response(res, false, 400, "No code for this country id")
-		}
 		await t.commit()
-		return response(res, true, 200, 'Country code returned succesfully', countryCode)
+		return response(res, true, 200, 'Phone code returned succesfully', phoneCode)
 	} catch (e) {
 		await t.rollback();
 		console.log(e);
-		return response(res, false, 500, `Error retrieving User with id: ${id}`);
+		return response(res, false, 500, 'Something went wrong while processing this request');
 	}
 }
+
+// get all questions
+exports.getAllActiveRecoveryQuestion = async (req, res) => {
+  const t = Models.sequelize.transaction();
+
+  try {
+    questions = await Models.recoveryquestion.findAll({})
+
+    return response(res, true, 200, 'Active recovery questions fetched successfuly', questions)
+  } catch (e) {
+    await t.rollback();
+    console.log(e);
+    return response(res, false, 500, 'Error Occured!')
+  }
+}
+
+//create update for bio

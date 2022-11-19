@@ -19,11 +19,12 @@ class address extends Sequelize.Model {
     addressid: {
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     addresstypeid: {
       type: DataTypes.SMALLINT,
-      allowNull: true
+      allowNull: false
     },
     cityid: {
       type: DataTypes.BIGINT,
@@ -31,7 +32,7 @@ class address extends Sequelize.Model {
     },
     addressline1: {
       type: DataTypes.STRING(500),
-      allowNull: true
+      allowNull: false
     },
     addressline2: {
       type: DataTypes.STRING(500),

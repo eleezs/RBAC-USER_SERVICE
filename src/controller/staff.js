@@ -2,21 +2,6 @@ const { response, getUserById } = require("../helper/utilityHelper");
 const { sequelize } = require("../models");
 const Models = require("../models");
 
-
-exports.getAllActiveRecoveryQuestion = async (req, res) => {
-  const t = Models.sequelize.transaction();
-
-  try {
-    questions = await Models.recoveryquestion.findAll({})
-
-    return response(res, true, 200, 'Active recovery questions fetched successfuly', questions)
-  } catch (e) {
-    await t.rollback();
-    console.log(e);
-    return response(res, false, 500, 'Error Occured!')
-  }
-}
-
 exports.createRole = async (req, res) => {
   const t = Models.sequelize.transaction();
   const { role, description } = req.body
@@ -246,3 +231,5 @@ exports.authorizeResource = async(req, res) => {
 
 
 //search by name
+
+//create employee

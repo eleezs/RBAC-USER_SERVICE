@@ -19,6 +19,7 @@ class personaddress extends Sequelize.Model {
     personaddressid: {
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     personid: {
