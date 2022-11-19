@@ -7,6 +7,10 @@ class country extends Sequelize.Model {
 	static associate (models) {
 		country.hasMany(models.countrystate, {
 			foreignKey: 'countryid'
+		}),
+
+		country.hasOne(models.phonecode, {
+			foreignKey: 'countryid'
 		})
 	}
 

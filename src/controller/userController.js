@@ -14,6 +14,7 @@ exports.createUser = async (req, res) => {
 	try {
 		await checkDuplicateEmail(email)
 		const userEmail = await Models.email.create({ email, createdby: `${firstName} ${lastName}` }, { transaction: t });
+		console.log('userEmail', userEmail)
 		const username = await generateUsername(firstName + lastName)
 		const person = await Models.person.create({
 			firstname: firstName,
@@ -25,8 +26,8 @@ exports.createUser = async (req, res) => {
 			phonenumber: phone,
 			createdby: `${firstName} ${lastName}`
 		}, { transaction: t })
-
-		await Peomise.all([
+		// await t.commit();
+		await Promise.all([
 			Models.personphone.create({
 				personid: person.personid,
 				phonenumberid: userNumber.phonenumberid,
@@ -68,7 +69,7 @@ exports.createUser = async (req, res) => {
 exports.updateUserBio = async (req, res) => {
 	const { userId, dob, gender, maritalStatusId, city } = req.body;
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const person = await getUserById(userId);
@@ -104,7 +105,7 @@ exports.updateUserBio = async (req, res) => {
 exports.secureUserAccount = async (req, res) => {
 	const { userId, password, recoveryQuestionId1, recoveryQuestionId2, recoveryQuestionId3, recoveryQuestionId4, recoveryAnswer1, recoveryAnswer2, recoveryAnswer3, recoveryAnswer4 } = req.body;
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const { salt, hashedPassword } = await hashAPassword(password)
@@ -164,7 +165,7 @@ exports.secureUserAccount = async (req, res) => {
 exports.updateUserAccess = async (req, res) => {
 	const { username } = req.body;
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const user = await getUserById(userId)
@@ -183,7 +184,7 @@ exports.updateUserAccess = async (req, res) => {
 
 // Retrieve all Users from the database.
 exports.getAllUsers = async (req, res) => {
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 	try {
 		let data = await Models.person.findAll({}, { transaction: t });
 
@@ -201,7 +202,7 @@ exports.getAllUsers = async (req, res) => {
 // Find a single User with an id
 exports.getUserById = async (req, res) => {
 	const { id } = req.params;
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const user = await getUserById(id)
@@ -220,7 +221,7 @@ exports.getUserById = async (req, res) => {
 // Delete a User with the specified id in the request
 exports.deleteUser = async (req, res) => {
 	const { id } = req.params;
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		let data = await Models.person.destroy({ where: { personid: id } }, { transaction: t });
@@ -244,7 +245,7 @@ exports.deleteUser = async (req, res) => {
 exports.getCountry = async (req, res) => {
 	const { country } = req.body
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const place = await Models.country.findAll({
@@ -266,7 +267,7 @@ exports.getCountry = async (req, res) => {
 exports.getState = async (req, res) => {
 	const { id } = req.params
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const place = await Models.countrystate.findAll({
@@ -288,7 +289,7 @@ exports.getState = async (req, res) => {
 exports.getCity = async (req, res) => {
 	const { id } = req.params
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const place = await Models.countrystate.findAll({
@@ -310,7 +311,7 @@ exports.getCity = async (req, res) => {
 exports.updateUserAddress = async (req, res) => {
 	const { addresstypeid, cityid, addressline1, addressline2, streetnumber, buildingnumber, description } = req.body;
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const user = await getUserById(req.user.id)
@@ -348,5 +349,30 @@ exports.updateUserAddress = async (req, res) => {
 		await t.rollback();
 		console.log(e);
 		return response(res, false, 500, 'Something went wrong');
+	}
+}
+
+// get city
+exports.getPhonecode = async (req, res) => {
+	const { id } = req.params
+
+	const t = await Models.sequelize.transaction();
+
+	try {
+		const countryCode = await Models.phonecode.findOne({
+			where: {
+				countryid: id
+			}
+		}, { transaction: t })
+
+		if (countryCode) {
+			return response(res, false, 400, "No code for this country id")
+		}
+		await t.commit()
+		return response(res, true, 200, 'Country code returned succesfully', countryCode)
+	} catch (e) {
+		await t.rollback();
+		console.log(e);
+		return response(res, false, 500, `Error retrieving User with id: ${id}`);
 	}
 }

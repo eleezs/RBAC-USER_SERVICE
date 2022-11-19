@@ -4,7 +4,7 @@ const Models = require("../models");
 
 
 exports.getAllActiveRecoveryQuestion = async (req, res) => {
-  const t = sequelize.transaction();
+  const t = Models.sequelize.transaction();
 
   try {
     questions = await Models.recoveryquestion.findAll({})
@@ -18,7 +18,7 @@ exports.getAllActiveRecoveryQuestion = async (req, res) => {
 }
 
 exports.createRole = async (req, res) => {
-  const t = sequelize.transaction();
+  const t = Models.sequelize.transaction();
   const { role, description } = req.body
   try {
     await Models.roletype.create({
@@ -37,7 +37,7 @@ exports.createRole = async (req, res) => {
 }
 
 exports.assignRole = async (req, res) => {
-  const t = sequelize.transaction();
+  const t = Models.sequelize.transaction();
   const { accessUserId, roleId, isActive, effectiveDate, endDate } = req.body;
 
   try {
@@ -62,7 +62,7 @@ exports.assignRole = async (req, res) => {
 exports.updateUserAccess = async (req, res) => {
   const { userId, userTypeId, username } = req.body;
 
-  const t = await sequelize.transaction();
+  const t = await Models.sequelize.transaction();
 
   try {
     const user = await getUserById(userId)
@@ -86,7 +86,7 @@ exports.updateUserAccess = async (req, res) => {
 exports.createGroupAccess = async (req, res) => {
   const { groupName, code, description, effectiveDate, isActive } = req.body;
 
-  const t = await sequelize.transaction();
+  const t = await Models.sequelize.transaction();
 
   try {
     const admin = await getUserById(req.user.id)
@@ -113,7 +113,7 @@ exports.createGroupAccess = async (req, res) => {
 exports.deactiveOrActiveGroupAccess = async (req, res) => {
   const { isActive } = req.body
   const { accessGroupId } = req.params
-  const t = await sequelize.transaction ();
+  const t = await Models.sequelize.transaction ();
 
   try {
     const user = await getUserById(req.user.id)
@@ -142,7 +142,7 @@ exports.deactiveOrActiveGroupAccess = async (req, res) => {
 exports.addMembersToGroup = async(req, res) => {
   const { userAccessId, accessGroupId } = req.body
 
-  const t = await sequelize.transaction();
+  const t = await Models.sequelize.transaction();
 
   try {
     const validAccessUser = await Models.accessuser.findOne({
@@ -180,7 +180,7 @@ exports.addMembersToGroup = async(req, res) => {
 exports.createResources = async (req, res) => {
 	const { resource, code, description } = req.body
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const isDuplicateResource = await Models.resource.findOne({
@@ -213,7 +213,7 @@ exports.createResources = async (req, res) => {
 exports.authorizeResource = async(req, res) => {
 	const { authorizationtypeid, resourcesid, accesstoken, authorizationexpires } = req.body;
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const isDuplicateResource = await Models.resource.findOne({
@@ -243,7 +243,6 @@ exports.authorizeResource = async(req, res) => {
     return response(res, false, 500, 'An Error occurred');
 	}
 }
-
 
 
 //search by name

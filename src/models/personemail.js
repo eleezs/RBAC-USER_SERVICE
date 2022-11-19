@@ -19,7 +19,8 @@ class personemail extends Sequelize.Model {
     personemailid: {
       type: DataTypes.BIGINT,
       allowNull: false,
-      primaryKey: true
+      primaryKey: true,
+			autoIncrement: true
     },
     personid: {
       type: DataTypes.BIGINT,

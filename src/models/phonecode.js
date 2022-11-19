@@ -7,6 +7,10 @@ class phonecode extends Sequelize.Model {
 	static associate(models) {
 		phonecode.hasMany(models.phonenumber, {
 			foreignKey: 'phonecodeid'
+		}),
+
+		phonecode.belongsTo(models.country, {
+			foreignKey: 'countryid'
 		})
 	}
   static init(sequelize, DataTypes) {
@@ -21,7 +25,7 @@ class phonecode extends Sequelize.Model {
       type: DataTypes.SMALLINT,
       allowNull: false
     },
-    countrycode: {
+    countrycode: {	
       type: DataTypes.CHAR(5),
       allowNull: false
     },

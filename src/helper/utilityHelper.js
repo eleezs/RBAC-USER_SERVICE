@@ -12,7 +12,7 @@ exports.response = (res, success, code, message, data) => {
 };
   
 exports.getUserById = async (person_id) => {
-    const t = sequelize.transaction ();
+    const t = Models.sequelize.transaction ();
     const user = await Models.person.findOne({ where: { personid: person_id } }, { transaction: t })
 
     if (!user) {
@@ -51,7 +51,7 @@ exports.generateUsername = async(username) => {
 		console.log('number', number)
     username = value.substring(0, 4) + number;
 		console.log('username', username)
-    let new_result = username + number;
+    let new_result = username;
 		return new_result
   }
 	let result = quickGenerate(temp_username); 

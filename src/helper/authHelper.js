@@ -88,7 +88,7 @@ exports.callBackAction = async (req, res) => {
 		console.log(googleUser.data.email)
 		const { email, name } = googleUser.data
 
-		const t = await sequelize.transaction ();
+		const t = await Models.sequelize.transaction ();
 
 		try {
 			checkDuplicateEmail(email)

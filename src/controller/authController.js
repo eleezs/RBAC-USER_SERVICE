@@ -24,7 +24,7 @@ exports.login = async (req, res) => {
 	const { payload } = req.body;
 	const { email, password } = payload;
 
-	const t = await sequelize.transaction();
+	const t = await Models.sequelize.transaction();
 
 	try {
 		const required = false

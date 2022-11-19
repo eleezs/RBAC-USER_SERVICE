@@ -20,6 +20,7 @@ class accessuser extends Sequelize.Model {
     accessuserid: {
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     personid: {

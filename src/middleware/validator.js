@@ -104,7 +104,8 @@ exports.create_user = [
     .isString()
     .withMessage('This field must be a string')
     .notEmpty()
-    .withMessage('This field can not be empty'),
+    .withMessage('This field can not be empty')
+		.custom(isPositiveNumber),
   body()
     .custom(body => checkAllowedFields(body, ['firstName', 'lastName', 'email', 'phone', 'phoneCodeId']))
 ];
