@@ -212,7 +212,27 @@ exports.getUserById = async (req, res) => {
 	const t = await Models.sequelize.transaction();
 
 	try {
-		const user = await getUserById(id)
+		const user =  await Models.person.findOne({
+			where: { personid: id },
+			include: [
+				{
+					model: Models.personemail,
+					include: [
+						{
+							model: Models.email,
+						}
+					]
+				},
+				{
+					model: Models.accessuser,
+					include: [{ 
+						model: Models.userlogin,
+						required: false
+					}]
+				}
+			]
+
+		}, { transaction: t })
 
 		await t.commit();
 		return response(res, true, 200, 'User retrieved successfully', user);

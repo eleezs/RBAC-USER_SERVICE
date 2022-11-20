@@ -11,7 +11,13 @@ class personemail extends Sequelize.Model {
     }),
 
     personemail.hasMany(models.email, {
-      foreignKey: 'emailid'
+      foreignKey: 'emailid',
+			sourceKey:'emailid'
+    })
+
+		personemail.belongsTo(models.email, {
+      foreignKey: 'emailid',
+			// sourceKey:'emailid'
     })
   }
   static init(sequelize, DataTypes) {

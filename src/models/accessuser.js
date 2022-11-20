@@ -7,7 +7,8 @@ class accessuser extends Sequelize.Model {
   static associate(models) {
     //define associations
    accessuser.belongsTo(models.person, {
-    foreignKey: 'personid'
+    foreignKey: 'personid',
+		// targetKey: 'personid'
    }),
 
    accessuser.hasMany(models.userlogin, {

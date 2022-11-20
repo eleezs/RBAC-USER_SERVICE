@@ -1,7 +1,6 @@
 const sequelize = require('../models');
 const Models = require("../models");
 require('dotenv')
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { response } = require('../helper/utilityHelper');
 const { getGoogleAuthURL, callBackAction } = require('../helper/authHelper');

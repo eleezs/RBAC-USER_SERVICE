@@ -7,8 +7,12 @@ class email extends Sequelize.Model {
   static associate(models) {
     // define associations
     email.belongsTo(models.personemail, {
-      foreignKey: 'emailid'
-    })
+      foreignKey: 'emailid',
+    }),
+		email.hasOne(models.personemail, {
+			foreignKey: 'emailid',
+			targetKey: 'emailid'
+		})
   }
   static init(sequelize, DataTypes) {
   return super.init({

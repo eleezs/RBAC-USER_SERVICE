@@ -14,7 +14,8 @@ staffRouter.put('/update/user-access', verifyUserRole(), validate(admin_update_u
 staffRouter.get('/users/all', verifyUserRole(), getAllUsers);
 
 // Retrieve a single user with id
-staffRouter.get('/user/find/:id', verifyToken, verifyUserRole(), validate(valid_id_param), getUserById);
+// staffRouter.get('/user/find/:id', verifyToken, verifyUserRole(), validate(valid_id_param), getUserById);
+staffRouter.get('/user/find/:id', validate(valid_id_param), getUserById);
 
 // Delete a User with id
 staffRouter.delete('/user/delete/:id', verifyToken, verifyUserRole(), validate(valid_id_param), deleteUser);

@@ -7,7 +7,7 @@ class person extends Sequelize.Model {
 
 	static associate(models) {
 		person.hasOne(models.accessuser, {
-			foreignKey: 'accessuserid'
+			foreignKey: 'personid'
 		}),
 
 			person.hasMany(models.personemail, {
