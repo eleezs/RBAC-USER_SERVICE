@@ -7,7 +7,7 @@ require('dotenv');
 
 // Auth Routes
 // login User
-authRouter.post('/user/login', validate(login_parameters), login);
+authRouter.get('/user/login', validate(login_parameters), login);
 
 // Logout User
 authRouter.get('/user/logout', logout);
@@ -15,6 +15,5 @@ authRouter.get('/user/logout', logout);
 // Getting google login URL
 authRouter.get("/google/url", googleSignUp);
 
-authRouter.get("/google/callback", login)
-
+// authRouter.get("/google/callback", login)
 module.exports = authRouter;

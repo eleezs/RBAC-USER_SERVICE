@@ -9,6 +9,7 @@ class employee extends Sequelize.Model {
     employeeid: {
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     accessuserid: {

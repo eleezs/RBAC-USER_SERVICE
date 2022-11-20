@@ -8,7 +8,7 @@ const { Op } = Sequelize
 // Create and Save a new User
 exports.createUser = async (req, res) => {
 
-	const { first_name, last_name, email, phone, phone_code_Id } = req.body;
+	const { first_name, last_name, email, phone, phone_code_id } = req.body;
 
 	const t = await Models.sequelize.transaction();
 
@@ -23,7 +23,7 @@ exports.createUser = async (req, res) => {
 		}, { transaction: t });
 
 		const userNumber = await Models.phonenumber.create({
-			phonecodeid: phone_code_Id,
+			phonecodeid: phone_code_id,
 			phonenumber: phone,
 			createdby: `${first_name} ${last_name}`
 		}, { transaction: t })
@@ -68,7 +68,7 @@ exports.createUser = async (req, res) => {
 
 // fill user bio
 exports.updateUserBio = async (req, res) => {
-	const { dob, gender, maritalStatusId, city } = req.body;
+	const { dob, gender, marital_status_id, city } = req.body;
 	const { id } = req.params;
 
 	const t = await Models.sequelize.transaction();
@@ -81,7 +81,7 @@ exports.updateUserBio = async (req, res) => {
 		}
 
 		await person.update({
-			maritalstatustypeid: maritalStatusId,
+			maritalstatustypeid: marital_status_id,
 			gender,
 			dateofbirth: dob,
 			updatedby: `${person.firstname} ${person.lastname}`
@@ -95,7 +95,7 @@ exports.updateUserBio = async (req, res) => {
 			return response(res, false, 400, 'No city with such Id');
 		}
 
-		const myCity = await Models.address.create({
+		const my_city = await Models.address.create({
 			addresstypeid: 1,
 			cityid: city,
 			addressline1: ' ',
@@ -120,53 +120,41 @@ exports.updateUserBio = async (req, res) => {
 
 //secure user account
 exports.secureUserAccount = async (req, res) => {
-	const { userId, password, recoveryQuestionId1, recoveryQuestionId2, recoveryQuestionId3, recoveryQuestionId4, recoveryAnswer1, recoveryAnswer2, recoveryAnswer3, recoveryAnswer4 } = req.body;
+	const { user_id, password, recovery_question_id1, recovery_question_id2, recovery_question_id3, recovery_question_id4, recovery_answer1, recovery_answer2, recovery_answer3, recovery_answer4 } = req.body;
 
 	const t = await Models.sequelize.transaction();
 
 	try {
-		const { salt, hashedPassword } = await hashAPassword(password)
+		const { salt, hashed_password } = await hashAPassword(password)
 		const user = await Models.accessuser.findOne({
-			where: { personid: userId },
-			include: [person]
+			where: { personid: user_id },
+			include: [Models.person]
 		}, { transaction: t })
 
 		if (!user) {
 			return response(res, true, 404, 'User not found')
 		}
 		console.log(user)
-		const question = [recoveryQuestionId1, recoveryQuestionId2, recoveryQuestionId3, recoveryQuestionId4]
-		const answer = [recoveryAnswer1, recoveryAnswer2, recoveryAnswer3, recoveryAnswer4]
 
-		const body = req.body; let temp_question; let temp_answer;
-
-		question.forEach(field => {
-			if (body.include(question)) {
-				temp_question.push(field)
-			}
-		})
-
-		answer.forEach(field => {
-			if (body.include(answer)) {
-				temp_answer.push(field)
-			}
-		})
-
-		for (let i = 0; i < temp_question.length; i++) {
+		const question = [recovery_question_id1, recovery_question_id2, recovery_question_id3, recovery_question_id4]
+		const answer = [recovery_answer1, recovery_answer2, recovery_answer3, recovery_answer4]
+		console.log(' user.accessuser.dataValues||||||||||||.',  user.accessuserid)
+		for (let i = 0; i < question.length; i++) {
 			await Models.userrecoveryquestion.create({
-				accessuserid: user.access_user_id,
-				recoveryquestionid: temp_question[i],
-				answer: temp_answer[i],
-				created_by: `${user.Person.firstname} ${user.Person.lastname}`
+				accessuserid: user.accessuserid,
+				recoveryquestionid: question[i],
+				answer: answer[i],
+				created_by: `${user.person.dataValues.firstname} ${user.person.dataValues.lastname}`
 			}, { transaction: t })
 		}
 
 		await Models.userlogin.create({
-			accessuserid: user.accessuser.id,
+			accessuserid: user.accessuserid,
 			passwordsalt: salt,
-			passwordhash: hashedPassword,
-			createdby: `${user.Person.firstname} ${user.Person.lastname}`
-		})
+			passwordhash: hashed_password,
+			createdby: `${user.person.dataValues.firstname} ${user.person.dataValues.lastname}`,
+			personid: user.person.dataValues.personid
+		}, { transaction: t })
 
 		await t.commit();
 
@@ -175,7 +163,7 @@ exports.secureUserAccount = async (req, res) => {
 	} catch (e) {
 		await t.rollback();
 		console.log(e);
-		return response(res, false, 500, 'Error occurred');
+		return response(res, false, 500, 'Something went wrong while processing this request');
 	}
 }
 
@@ -186,6 +174,7 @@ exports.updateUserAccess = async (req, res) => {
 	const t = await Models.sequelize.transaction();
 
 	try {
+		const user_id = req.user.id
 		const user = await getUserById(userId)
 		await Models.accessuser.update({
 			username,
@@ -196,7 +185,7 @@ exports.updateUserAccess = async (req, res) => {
 	} catch (e) {
 		await t.rollback();
 		console.log(e);
-		return response(res, false, 500, 'Error occurred');
+		return response(res, false, 500, 'Something went wrong while processing this request');
 	}
 }
 

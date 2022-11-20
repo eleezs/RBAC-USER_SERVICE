@@ -9,6 +9,7 @@ class userloginhistory extends Sequelize.Model {
     userloginhistoryid: {
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     accesstoken: {

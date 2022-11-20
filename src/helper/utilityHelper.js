@@ -1,4 +1,3 @@
-const { sequelize } = require('../models');
 const Models = require('../models');
 const bcrypt = require('bcrypt');
 
@@ -20,23 +19,19 @@ exports.getUserById = async (person_id) => {
 
 exports.hashAPassword = async (password) => {
 	const salt = await bcrypt.genSalt(10)
-	const hashedPassword = await bcrypt.hash(password, salt)
+	const hashed_password = await bcrypt.hash(password, salt)
 
-	return { salt, hashedPassword }
+	return { salt, hashed_password }
 }
 
 exports.checkDuplicateEmail = async (email) => {
-	const existingEmail = await Models.email.findOne({
+	const existing_email = await Models.email.findOne({
 		where: {
 			email
 		}
 	})
 
-	if (existingEmail) {
-		throw new Error("This is email is already in use")
-	}
-
-	return true;
+	return existing_email
 }
 
 exports.generateUsername = async (username) => {

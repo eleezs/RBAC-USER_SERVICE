@@ -14,6 +14,7 @@ class recoveryquestion extends Sequelize.Model {
     recoveryquestionid: {
       type: DataTypes.SMALLINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     question: {

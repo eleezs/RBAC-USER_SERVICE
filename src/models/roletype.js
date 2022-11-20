@@ -9,6 +9,7 @@ class roletype extends Sequelize.Model {
     roleid: {
       type: DataTypes.SMALLINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     roletype: {

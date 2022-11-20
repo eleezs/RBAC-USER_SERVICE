@@ -14,6 +14,7 @@ class userrecoveryquestion extends Sequelize.Model {
     userrecoveryquestionid: {
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     accessuserid: {

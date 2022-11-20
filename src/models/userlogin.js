@@ -4,11 +4,17 @@ module.exports = (sequelize, DataTypes) => {
 }
 
 class userlogin extends Sequelize.Model {
+	static associate(models) {
+		userlogin.belongsTo(models.accessuser, {
+			foreignKey: 'accessuserid'
+		})
+	}
   static init(sequelize, DataTypes) {
   return super.init({
     userloginid: {
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     accessuserid: {
@@ -73,7 +79,7 @@ class userlogin extends Sequelize.Model {
         fields: [
           { name: "userloginid" },
         ]
-      },
+      }
     ]
   });
   }

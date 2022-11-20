@@ -113,6 +113,15 @@ const validateGetPhonecode = (body) => {
 	return true;
 }
 
+const validateLoginParam = (query, { req }) => {
+	const { email, password } = req.body
+	if (!query.code && (!email || !password)) {
+		throw new Error('Input email and passowrd')
+	}
+
+	return true;
+}
+
 module.exports = {
 	checkAllowedFields,
 	isPositiveNumber,
@@ -124,5 +133,6 @@ module.exports = {
 	validateGetCity,
 	validateGetState,
 	validateGetCountry,
-	validateGetPhonecode
+	validateGetPhonecode,
+	validateLoginParam
 }

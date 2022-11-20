@@ -12,17 +12,19 @@ require('dotenv');
 
 const client = Redis.redisClient();
 
-exports.login = async (req, res) => {
+exports.login = async (req, res, next) => {
 
-	let googleSign;
+	let googleSign, email, password;
 
 	if (req.query.code) {
-		googleSign = callBackAction(req, res)
-		return googleSign
+		googleSign = await callBackAction(req, res, next)
+		email = googleSign.email
+		name = googleSign.name
+		console.log(googleSign)
+	} else {
+		email = req.body.email
+		password = req.body.password;
 	}
-
-	const { payload } = req.body;
-	const { email, password } = payload;
 
 	const t = await Models.sequelize.transaction();
 
@@ -89,7 +91,7 @@ exports.login = async (req, res) => {
 	} catch (e) {
 		await t.rollback();
 		console.log(e);
-    return response(res, false, 500, 'Error occurred', e);
+    return response(res, false, 500, 'Something went wrong while processing this request');
 	}
 }
 

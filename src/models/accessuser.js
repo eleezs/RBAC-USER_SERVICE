@@ -11,7 +11,7 @@ class accessuser extends Sequelize.Model {
    }),
 
    accessuser.hasMany(models.userlogin, {
-    foreignKey: 'personid'
+    foreignKey: 'accessuserid'
    })
   }
    
