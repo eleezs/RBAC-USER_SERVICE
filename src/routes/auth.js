@@ -7,7 +7,7 @@ require('dotenv');
 
 // Auth Routes
 // login User
-authRouter.get('/user/login', validate(login_parameters), login);
+authRouter.post('/user/login', validate(login_parameters), login);
 
 // Logout User
 authRouter.get('/user/logout', logout);

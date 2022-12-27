@@ -58,3 +58,33 @@ exports.generateUsername = async (username) => {
 
 	return result
 }
+
+exports.getUserCredentials = async (email) => {
+	const required = false
+		const user_details = await Models.email.findOne({
+			where: { email },
+			include: [
+				{
+					model: Models.personemail,
+					include: [
+						{
+							model: Models.person,
+							include: [
+								{
+									model: Models.accessuser,
+									include: [{ 
+										model: Models.userlogin,
+										required
+									}],
+									required
+								}
+							]
+						}
+					],
+					required
+				}
+			]
+		})
+
+		return (user_details)
+}

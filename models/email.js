@@ -1,10 +1,26 @@
+// 
 const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('email', {
+module.exports = (sequelize, DataTypes) => {
+  return email.init(sequelize, DataTypes);
+}
+
+class email extends Sequelize.Model {
+  static associate(models) {
+    // define associations
+    email.belongsTo(models.personemail, {
+      foreignKey: 'emailid',
+    }),
+		email.hasOne(models.personemail, {
+			foreignKey: 'emailid',
+			targetKey: 'emailid'
+		})
+  }
+  static init(sequelize, DataTypes) {
+  return super.init({
     emailid: {
-      autoIncrement: true,
       type: DataTypes.BIGINT,
       allowNull: false,
+			autoIncrement: true,
       primaryKey: true
     },
     email: {
@@ -34,16 +50,9 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'email',
-    schema: 'public',
+    //schema: 'app',
     timestamps: false,
     indexes: [
-      {
-        name: "email_pkey",
-        unique: true,
-        fields: [
-          { name: "emailid" },
-        ]
-      },
       {
         name: "pk_email",
         unique: true,
@@ -60,4 +69,5 @@ module.exports = function(sequelize, DataTypes) {
       },
     ]
   });
-};
+  }
+}
