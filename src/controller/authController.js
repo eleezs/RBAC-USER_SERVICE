@@ -17,8 +17,10 @@ exports.login = async (req, res, next) => {
 
 	if (req.query.code) {
 		googleSign = await callBackAction(req, res, next)
+
 		email = googleSign.email
 		name = googleSign.name
+	
 		console.log(googleSign)
 	} else {
 		email = req.body.email
@@ -58,7 +60,7 @@ exports.login = async (req, res, next) => {
 		}
 		console.log('user details', user_details)
 		const user = user_details.personemail?.person
-		const user_login_details = user_details.person?.accessuser?.userlogin
+		const user_login_details = user.accessuser?.userlogins
 
 		if (!googleSign) {
 			let passwordIsValid = bcrypt.compareSync(password, user_login_details.passwordhash);
@@ -78,8 +80,8 @@ exports.login = async (req, res, next) => {
 
 		await Models.userloginhistory.create({
 			accesstoken: token,
-			userloginid: user_login_details.userloginid
-		})
+			userloginid: user_login_details[0]?.dataValues.userloginid
+		}, { transaction: t })
 
 		await t.commit();
     await client.setEx(`user_token_${user.personid}`, 1800, token)

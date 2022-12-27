@@ -13,7 +13,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     userloginid: {
       type: DataTypes.BIGINT,
-      allowNull: false
+      allowNull: true
     },
     createdon: {
       type: DataTypes.DATE,

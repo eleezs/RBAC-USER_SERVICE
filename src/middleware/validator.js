@@ -22,47 +22,109 @@ exports.validate = (values = []) => {
 };
 
 exports.create_user = [
-  body("first_name")
+  body("firstName")
     .exists()
-    .withMessage('First name is required')
+    .withMessage('This field is required')
     .isString()
-    .withMessage('First name must be a string')
+    .withMessage('This field must be a string')
     .notEmpty()
-    .withMessage('First name can not be empty'),
-  body("last_name")
+    .withMessage('This field can not be empty'),
+  body("lastName")
     .exists()
-    .withMessage('Last name is required')
+    .withMessage('This field is required')
     .isString()
-    .withMessage('Last name must be a string')
+    .withMessage('This field must be a string')
     .notEmpty()
-    .withMessage('Last name can not be empty'),
+    .withMessage('This field can not be empty'),
   body("email")
     .exists()
-    .withMessage('Email is required')
+    .withMessage('This field is required')
     .isString()
-    .withMessage('Email must be a string')
+    .withMessage('This field must be a string')
     .notEmpty()
-    .withMessage('Email can not be empty')
+    .withMessage('This field can not be empty')
 		.custom(checkDuplicateEmail),
   body("phone")
     .exists()
-    .withMessage('Phone is required')
+    .withMessage('This field is required')
     .isString()
-    .withMessage('Phone must be a string')
+    .withMessage('This field must be a string')
     .notEmpty()
-    .withMessage('Phone can not be empty')
+    .withMessage('This field can not be empty')
 		.custom(checkDuplicatenumber),
   body("phoneCodeId")
     .exists()
-    .withMessage('Phone code id is required')
+    .withMessage('This field is required')
     .isString()
-    .withMessage('Phone code id must be a string')
+    .withMessage('This field must be a string')
     .notEmpty()
-    .withMessage('Phone code id can not be empty')
-		.custom(isPositiveNumber),
+    .withMessage('This field can not be empty'),
   body()
-    .custom(body => checkAllowedFields(body, ['first_name', 'last_name', 'email', 'phone', 'phoneCodeId']))
+    .custom(body => checkAllowedFields(body, ['firstName', 'lastName', 'email', 'phone', 'phoneCodeId']))
 ];
+
+exports.update_user_bio = [
+  body("userId")
+    .exists()
+    .withMessage('This field is required')
+    .isInt()
+    .withMessage('This is field is an integer')
+    .notEmpty()
+    .withMessage('This field can not be empty')
+    .custom(isPositiveNumber),
+  body("dob")
+    .exists()
+    .withMessage('This field is required')
+    .isString()
+    .withMessage('Start date should be a string')
+    .notEmpty()
+    .withMessage('This field can not be empty')
+    .custom(isValidDate)
+    .withMessage("This field format should be: YYYY-MM-DD"),
+  body("gender")
+    .exists()
+    .withMessage('This field is required')
+    .isString()
+    .withMessage('This is field is an string')
+    .isIn(['male', 'female', 'other'])
+    .withMessage('This field value should either be male, female, other')
+    .notEmpty()
+    .withMessage('This field can not be empty'),
+  body("maritalStatusId")
+    .exists()
+    .withMessage('This is field is required')
+    .isInt()
+    .withMessage('This is field is an integer')
+    .notEmpty()
+    .withMessage('This field can not be empty')
+    .custom(isPositiveNumber),
+  body("countryId")
+    .exists()
+    .withMessage('This field is required')
+    .isInt()
+    .withMessage('This is field is an integer')
+    .notEmpty()
+    .withMessage('This field can not be empty')
+    .custom(isPositiveNumber),
+  body("stateId")
+    .exists()
+    .withMessage('This field is required')
+    .isInt()
+    .withMessage('This is field is an integer')
+    .notEmpty()
+    .withMessage('This field can not be empty')
+    .custom(isPositiveNumber),
+  body("cityId")
+    .exists()
+    .withMessage('This field is required')
+    .isInt()
+    .withMessage('This is field is an integer')
+    .notEmpty()
+    .withMessage('This field can not be empty')
+    .custom(isPositiveNumber),
+  body()
+    .custom(body => checkAllowedFields(body, ['userId', 'dob', 'gender', 'maritalStatusId', 'countryId', 'stateId', 'cityId'] ))
+]
 
 exports.update_user_bio = [
   param("id")

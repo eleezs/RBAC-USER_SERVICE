@@ -400,9 +400,13 @@ function initModels(sequelize) {
   country.hasMany(phonecode, { as: "phonecodes", foreignKey: "countryid"});
   city.belongsTo(countrystate, { as: "countrystate", foreignKey: "countrystateid"});
   countrystate.hasMany(city, { as: "cities", foreignKey: "countrystateid"});
-  personemail.belongsTo(email, { as: "email", foreignKey: "emailid"});
-  email.hasMany(personemail, { as: "personemails", foreignKey: "emailid"});
-  accessuser.belongsTo(person, { as: "person", foreignKey: "personid"});
+  // personemail.belongsTo(email, { as: "email", foreignKey: "emailid" });
+  // personemail.belongsTo(email, { foreignKey: "emailid" });
+	// email.belongsTo(personemail, { foreignKey: "emailid" });
+  // email.hasMany(personemail, { as: "personemails", foreignKey: "emailid"});
+	// email.hasOne(personemail, { foreignKey: 'emailid', targetKey: 'emailid'});
+	// personemail.hasMany(email, { foreignKey: 'emailid', sourceKey:'emailid' });
+  accessuser.belongsTo(person, { as: "person", foreignKey: "personid", });
   person.hasMany(accessuser, { as: "accessusers", foreignKey: "personid"});
   personaddress.belongsTo(person, { as: "person", foreignKey: "personid"});
   person.hasMany(personaddress, { as: "personaddresses", foreignKey: "personid"});

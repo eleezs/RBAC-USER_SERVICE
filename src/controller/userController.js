@@ -8,24 +8,22 @@ const { Op } = Sequelize
 // Create and Save a new User
 exports.createUser = async (req, res) => {
 
-	const { first_name, last_name, email, phone, phone_code_id } = req.body;
+	const { firstName, lastName, email, phone, phoneCodeId } = req.body;
 
 	const t = await Models.sequelize.transaction();
 
 	try {
-		await checkDuplicateEmail(email)
-		const user_email = await Models.email.create({ email, createdby: `${first_name} ${last_name}` }, { transaction: t });
-		console.log('user_email', user_email)
-		const username = await generateUsername(first_name + last_name)
+		const user_email = await Models.email.create({ email, createdby: `${firstName} ${lastName}` }, { transaction: t });
+		const username = await generateUsername(firstName + lastName)
 		const person = await Models.person.create({
-			firstName: first_name,
-			lastNname: last_name
+			firstname: firstName,
+			lastname: lastName
 		}, { transaction: t });
 
 		const userNumber = await Models.phonenumber.create({
-			phonecodeid: phone_code_id,
+			phonecodeid: phoneCodeId,
 			phonenumber: phone,
-			createdby: `${first_name} ${last_name}`
+			createdby: `${firstName} ${lastName}`
 		}, { transaction: t })
 
 		await Promise.all([
@@ -33,7 +31,7 @@ exports.createUser = async (req, res) => {
 				personid: person.personid,
 				phonenumberid: userNumber.phonenumberid,
 				isprimary: true,
-				createdby: `${first_name} ${last_name}`
+				createdby: `${firstName} ${lastName}`
 			}, { transaction: t }),
 
 			user_email.update({ person_id: person.personid }, { transaction: t }),
@@ -42,13 +40,13 @@ exports.createUser = async (req, res) => {
 				personid: person.personid,
 				emailid: user_email.emailid,
 				isprimary: true,
-				createdby: `${first_name} ${last_name}`
+				createdby: `${firstName} ${lastName}`
 			}, { transaction: t }),
 
 			Models.accessuser.create({
 				personid: person.personid,
 				username,
-				createdby: `${first_name} ${last_name}`
+				createdby: `${firstName} ${lastName}`
 			}, { transaction: t })
 		])
 
