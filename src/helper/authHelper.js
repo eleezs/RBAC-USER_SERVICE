@@ -1,7 +1,7 @@
-const Models = require("../models");
+const Models = require("../../models");
 const Axios = require("axios");
 const querystring = require('query-string');
-const sequelize = require("../models");
+const sequelize = require("../../models");
 const { checkDuplicateEmail, response } = require("./utilityHelper");
 
 require('dotenv');

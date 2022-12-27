@@ -1,6 +1,6 @@
 const { response, getUserById } = require("../helper/utilityHelper");
-const { sequelize } = require("../models");
-const Models = require("../models");
+const { sequelize } = require("../../models");
+const Models = require("../../models");
 
 exports.createRole = async (req, res) => {
   const t = Models.sequelize.transaction();

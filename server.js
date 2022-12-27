@@ -1,5 +1,5 @@
-const sequelize = require('./src/models')
-const config = require('./src/config/config');
+const sequelize = require('./models')
+const config = require('./config/config');
 const express = require('express');
 const app = express();
 const router = require('./src/routes');

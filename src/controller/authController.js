@@ -1,5 +1,5 @@
-const sequelize = require('../models');
-const Models = require("../models");
+const sequelize = require('../../models');
+const Models = require("../../models");
 require('dotenv')
 const bcrypt = require("bcrypt");
 const { response } = require('../helper/utilityHelper');

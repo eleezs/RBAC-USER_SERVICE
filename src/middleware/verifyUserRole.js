@@ -1,5 +1,5 @@
 const { response } = require('../helper/utilityHelper')
-const Models = require('../models')
+const Models = require('../../models')
 
 
 exports.verifyUserRole = () => {

@@ -8,7 +8,7 @@ module.exports =
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
-    dialect: process.env.DIALECT,
+    dialect: "postgres",
     // secret: process.env.SECRET,
     appPort: process.env.APP_PORT,
     // role:process.env.DB_ROLE,
@@ -27,7 +27,7 @@ module.exports =
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
     dialect: process.env.DIALECT,
-    secret: process.env.SECRET,
+    // secret: process.env.SECRET,
     appPort: process.env.APP_PORT,
     "dialectOptions": {
       "ssl": {

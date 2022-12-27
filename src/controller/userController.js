@@ -1,6 +1,6 @@
-const Models = require("../models");
+const Models = require("../../models");
 const { response, getUserById, hashAPassword, checkDuplicateEmail, generateUsername } = require('../helper/utilityHelper');
-const { Sequelize } = require('../models');
+const { Sequelize } = require('../../models');
 require('dotenv');
 
 const { Op } = Sequelize
