@@ -58,12 +58,12 @@ exports.login = async (req, res, next) => {
 		if (!user_details) {
 			return response(res, false, 404, 'User Not found.')
 		}
-		console.log('user details', user_details)
+
 		const user = user_details.personemail?.person
 		const user_login_details = user.accessuser?.userlogins
 
 		if (!googleSign) {
-			let passwordIsValid = bcrypt.compareSync(password, user_login_details.passwordhash);
+			let passwordIsValid = bcrypt.compareSync(password, user_login_details[0]?.dataValues.passwordhash);
 
 			if (!passwordIsValid) {
 				return response(res, false, 400, "Invalid Password/username!")
