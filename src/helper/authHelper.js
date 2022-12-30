@@ -124,7 +124,7 @@ exports.callBackAction = async (req, res, next) => {
 			const user = exiting_email.personemail?.person
 			const user_login_details = user.accessuser?.userlogins
 
-			if (!user_login_details) {
+			if (user_login_details.length === 0) {
 				await Models.userlogin.create({
 					accessuserid: user.accessuser.accessuserid
 				}, { transaction: t })

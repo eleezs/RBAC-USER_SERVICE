@@ -11,10 +11,10 @@ userRouter.post('/create', validate(create_user),  createUser);
 userRouter.put('/user/:id/update/bio', validate(update_user_bio), updateUserBio)
 
 //secure user account
-userRouter.post('/secure/user-account', validate(secure_user_account), secureUserAccount)
+userRouter.post('/:user_id/secure/account', validate(secure_user_account), secureUserAccount)
 
 // update username info
-userRouter.put('/update/user-access', verifyToken, validate(update_user_access),  updateUserAccess);
+userRouter.put('/:user_id/update/user-access', validate(update_user_access),  updateUserAccess);
 
 //get country
 userRouter.get('/get-country', validate(get_country), getCountry)

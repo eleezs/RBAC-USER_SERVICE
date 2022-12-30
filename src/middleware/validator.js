@@ -209,7 +209,7 @@ exports.update_user_access = [
 ]
 
 exports.secure_user_account = [
-  body("user_id")
+  param("user_id")
     .exists()
     .withMessage('User id is required')
     .isInt()
@@ -289,7 +289,9 @@ exports.secure_user_account = [
     .notEmpty()
     .withMessage('Recovery answer_4 can not be empty'),
   body()
-    .custom(body => checkAllowedFields(body, ['user_id', 'password', 'recovery_question_id1', 'recovery_question_id2', 'recovery_question_id3', 'recovery_question_id4', 'recovery_answer1', 'recovery_answer2', 'recovery_answer3', 'recovery_answer4']))
+    .custom(body => checkAllowedFields(body, ['password', 'recovery_question_id1', 'recovery_question_id2', 'recovery_question_id3', 'recovery_question_id4', 'recovery_answer1', 'recovery_answer2', 'recovery_answer3', 'recovery_answer4'])),
+	param()
+		.custom(param => checkAllowedFields(param, 'user_id'))
 ]
 
 exports.valid_id_param = [

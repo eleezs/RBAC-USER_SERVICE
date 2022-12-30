@@ -118,42 +118,61 @@ exports.updateUserBio = async (req, res) => {
 
 //secure user account
 exports.secureUserAccount = async (req, res) => {
-	const { user_id, password, recovery_question_id1, recovery_question_id2, recovery_question_id3, recovery_question_id4, recovery_answer1, recovery_answer2, recovery_answer3, recovery_answer4 } = req.body;
+	const { password, recovery_question_id1, recovery_question_id2, recovery_question_id3, recovery_question_id4, recovery_answer1, recovery_answer2, recovery_answer3, recovery_answer4 } = req.body;
 
 	const t = await Models.sequelize.transaction();
 
 	try {
 		const { salt, hashed_password } = await hashAPassword(password)
 		const user = await Models.accessuser.findOne({
-			where: { personid: user_id },
+			where: { personid: req.params.user_id },
 			include: [Models.person]
 		}, { transaction: t })
 
 		if (!user) {
 			return response(res, true, 404, 'User not found')
 		}
-		console.log(user)
 
 		const question = [recovery_question_id1, recovery_question_id2, recovery_question_id3, recovery_question_id4]
 		const answer = [recovery_answer1, recovery_answer2, recovery_answer3, recovery_answer4]
-		console.log(' user.accessuser.dataValues||||||||||||.',  user.accessuserid)
+
 		for (let i = 0; i < question.length; i++) {
-			await Models.userrecoveryquestion.create({
+			const already_answered = await Models.userrecoveryquestion.findOne({ where: {
 				accessuserid: user.accessuserid,
-				recoveryquestionid: question[i],
-				answer: answer[i],
-				created_by: `${user.person.dataValues.firstname} ${user.person.dataValues.lastname}`
+				recoveryquestionid: question[i]
+			}})
+			if (already_answered) {
+				await already_answered.update({
+					recoveryquestionid: question[i],
+					answer: answer[i],
+					updated_by: `${user.person.dataValues.firstname} ${user.person.dataValues.lastname}`
+				}, { trsnsaction: t })
+			} else {
+				await Models.userrecoveryquestion.create({
+					accessuserid: user.accessuserid,
+					recoveryquestionid: question[i],
+					answer: answer[i],
+					created_by: `${user.person.dataValues.firstname} ${user.person.dataValues.lastname}`
+				}, { transaction: t })
+			}
+		}
+		const user_login = await Models.userlogin.findOne({ where: { accessuserid: user.accessuserid }}, { transaction: t })
+
+		if(user_login) {
+			await user_login.update({
+				passwordsalt: salt,
+				passwordhash: hashed_password,
+				createdby: `${user.person.dataValues.firstname} ${user.person.dataValues.lastname}`,
+			}, { transaction: t })
+		} else {
+			await Models.userlogin.create({
+				accessuserid: user.accessuserid,
+				passwordsalt: salt,
+				passwordhash: hashed_password,
+				createdby: `${user.person.dataValues.firstname} ${user.person.dataValues.lastname}`,
 			}, { transaction: t })
 		}
-
-		await Models.userlogin.create({
-			accessuserid: user.accessuserid,
-			passwordsalt: salt,
-			passwordhash: hashed_password,
-			createdby: `${user.person.dataValues.firstname} ${user.person.dataValues.lastname}`,
-			personid: user.person.dataValues.personid
-		}, { transaction: t })
-
+	
 		await t.commit();
 
 		return response(res, true, 201, 'User security updated')

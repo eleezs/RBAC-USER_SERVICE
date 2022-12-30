@@ -1,7 +1,7 @@
 const express = require('express');
 const { createRole, assignRole, createGroupAccess, deactiveOrActiveGroupAccess, addMembersToGroup, updateUserAccess } = require('../controller/staff');
 const { getAllUsers, getUserById, deleteUser } = require('../controller/userController');
-const { verifyToken } = require('../middleware/authenticate');
+// const { verifyToken } = require('../middleware/authenticate');
 
 const { validate, valid_id_param, create_role, assign_role, admin_update_user_access, deactive_or_active_group_access, add_members_to_group } = require('../middleware/validator');
 const { verifyUserRole } = require('../middleware/verifyUserRole');
@@ -18,21 +18,21 @@ staffRouter.get('/users/all', verifyUserRole(), getAllUsers);
 staffRouter.get('/user/find/:id', validate(valid_id_param), getUserById);
 
 // Delete a User with id
-staffRouter.delete('/user/delete/:id', verifyToken, verifyUserRole(), validate(valid_id_param), deleteUser);
+staffRouter.delete('/user/delete/:id', verifyUserRole(), validate(valid_id_param), deleteUser);
 
 // create role
-staffRouter.post('/role/create', verifyToken, verifyUserRole(), validate(create_role), createRole)
+staffRouter.post('/role/create', verifyUserRole(), validate(create_role), createRole)
 
 //assign roles
-staffRouter.post('/role/assign', verifyToken, verifyUserRole(), validate(assign_role), assignRole)
+staffRouter.post('/role/assign', verifyUserRole(), validate(assign_role), assignRole)
 
 // creaate access group
-staffRouter.post('/access-group/create', verifyToken, verifyUserRole(), validate(assign_role), createGroupAccess)
+staffRouter.post('/access-group/create', verifyUserRole(), validate(assign_role), createGroupAccess)
 
 //deactive or activate access group
-staffRouter.put('/update-group-access-status/:accessGroupId', verifyToken, verifyUserRole(), validate(deactive_or_active_group_access), deactiveOrActiveGroupAccess)
+staffRouter.put('/update-group-access-status/:accessGroupId', verifyUserRole(), validate(deactive_or_active_group_access), deactiveOrActiveGroupAccess)
 
 //add user to group
-staffRouter.post('/add-member-to-group/:accessGroupId', verifyToken, verifyUserRole(), validate(add_members_to_group), addMembersToGroup)
+staffRouter.post('/add-member-to-group/:accessGroupId', verifyUserRole(), validate(add_members_to_group), addMembersToGroup)
 
 module.exports = staffRouter;
