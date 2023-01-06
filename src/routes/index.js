@@ -6,7 +6,7 @@ const { verifyToken } = require('../middleware/authenticate');
 
 const router = express.Router();
 
-router.use('/user', verifyToken, user);
+router.use('/user', user);
 router.use('/staff', verifyToken, staff);
 router.use('/auth', auth);
 
