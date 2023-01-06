@@ -8,13 +8,13 @@ const userRouter = express.Router();
 userRouter.post('/create', validate(create_user),  createUser);
 
 // update user bio
-userRouter.put('/user/:id/update/bio', validate(update_user_bio), updateUserBio)
+userRouter.put('/user/:id/update/bio', verifyToken, validate(update_user_bio), updateUserBio)
 
 //secure user account
-userRouter.post('/:user_id/secure/account', validate(secure_user_account), secureUserAccount)
+userRouter.post('/:user_id/secure/account', verifyToken, validate(secure_user_account), secureUserAccount)
 
 // update username info
-userRouter.put('/:user_id/update/user-access', validate(update_user_access),  updateUserAccess);
+userRouter.put('/:user_id/update/user-access', verifyToken, validate(update_user_access),  updateUserAccess);
 
 //get country
 userRouter.get('/get-country', validate(get_country), getCountry)
@@ -29,7 +29,7 @@ userRouter.get('/get-city', validate(get_city), getCity)
 userRouter.get('/get-phonecode', validate(get_Phone_Code), getPhonecode)
 
 //update/ create user address
-userRouter.post('/address', validate(update_user_address), updateUserAddress)
+userRouter.post('/address', verifyToken, validate(update_user_address), updateUserAddress)
 
 //get all question
 userRouter.get('/get-questions', getAllActiveRecoveryQuestion)
